@@ -71,3 +71,25 @@ out
 gen
 dist
 mongo
+
+
+# Docker compose ganarated files
+db-data
+
+
+# Vuepress
+.temp
+.cache
+.DS_Store
+
+
+# Local History
+.history
+.swc/
+
+# VuePress default temp directory
+.vuepress/.temp
+# VuePress default cache directory
+.vuepress/.cache
+# VuePress default build output directory
+.vuepress/dist
