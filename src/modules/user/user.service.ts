@@ -71,9 +71,9 @@ export class UserService {
       throw new FileNotImageException();
     }
 
-    // if (file) {
-    //   user.avatar = await this.awsS3Service.uploadImage(file);
-    // }
+    if (file) {
+      user.avatar = await this.awsS3Service.uploadImage(file);
+    }
 
     await this.userRepository.save(user);
 

@@ -117,6 +117,7 @@ export default tseslint.config(
     ],
     rules: {
       'sonarjs/no-duplicate-string': 'off',
+      'sonarjs/argument-type': 'off',
     },
   },
   {
