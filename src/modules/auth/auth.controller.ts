@@ -21,6 +21,8 @@ import { UserEntity } from '../user/user.entity.ts';
 import { UserService } from '../user/user.service.ts';
 import { AuthService } from './auth.service.ts';
 import { LoginPayloadDto } from './dto/login-payload.dto.ts';
+import { RefreshTokenDto } from './dto/refresh-token.dto.ts';
+import { TokenPayloadDto } from './dto/token-payload.dto.ts';
 import { UserLoginDto } from './dto/user-login.dto.ts';
 import { UserRegisterDto } from './dto/user-register.dto.ts';
 
@@ -36,19 +38,36 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   @ApiOkResponse({
     type: LoginPayloadDto,
-    description: 'User info with access token',
+    description: 'User info with access token and refresh token',
   })
   async userLogin(
     @Body() userLoginDto: UserLoginDto,
   ): Promise<LoginPayloadDto> {
     const userEntity = await this.authService.validateUser(userLoginDto);
 
-    const token = await this.authService.createAccessToken({
+    const accessToken = await this.authService.createAccessToken({
       userId: userEntity.id,
       role: userEntity.role,
     });
 
-    return new LoginPayloadDto(userEntity.toDto(), token);
+    const refreshToken = await this.authService.createRefreshToken({
+      userId: userEntity.id,
+      role: userEntity.role,
+    });
+
+    return new LoginPayloadDto(userEntity.toDto(), accessToken, refreshToken);
+  }
+
+  @Post('refresh')
+  @HttpCode(HttpStatus.OK)
+  @ApiOkResponse({
+    type: TokenPayloadDto,
+    description: 'New access token',
+  })
+  async refreshToken(
+    @Body() refreshTokenDto: RefreshTokenDto,
+  ): Promise<TokenPayloadDto> {
+    return this.authService.refreshAccessToken(refreshTokenDto.refreshToken);
   }
 
   @Post('register')

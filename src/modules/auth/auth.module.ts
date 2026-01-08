@@ -15,19 +15,15 @@ import { PublicStrategy } from './public.strategy.ts';
     PassportModule.register({ defaultStrategy: 'jwt' }),
     JwtModule.registerAsync({
       useFactory: (configService: ApiConfigService) => ({
-        privateKey: configService.authConfig.privateKey,
-        publicKey: configService.authConfig.publicKey,
+        secret: configService.authConfig.secret,
         signOptions: {
-          algorithm: 'RS256',
-          //     expiresIn: configService.getNumber('JWT_EXPIRATION_TIME'),
+          algorithm: 'HS256',
+          // if you want to use token with expiration date
+          expiresIn: configService.authConfig.jwtExpirationTime,
         },
         verifyOptions: {
-          algorithms: ['RS256'],
+          algorithms: ['HS256'],
         },
-        // if you want to use token with expiration date
-        // signOptions: {
-        //     expiresIn: configService.getNumber('JWT_EXPIRATION_TIME'),
-        // },
       }),
       inject: [ApiConfigService],
     }),

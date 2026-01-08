@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 
 import { validateHash } from '../../common/utils.ts';
@@ -33,6 +33,25 @@ export class AuthService {
     });
   }
 
+  async createRefreshToken(data: {
+    role: RoleType;
+    userId: Uuid;
+  }): Promise<TokenPayloadDto> {
+    return new TokenPayloadDto({
+      expiresIn: this.configService.authConfig.refreshTokenExpirationTime,
+      token: await this.jwtService.signAsync(
+        {
+          userId: data.userId,
+          type: TokenType.REFRESH_TOKEN,
+          role: data.role,
+        },
+        {
+          expiresIn: this.configService.authConfig.refreshTokenExpirationTime,
+        },
+      ),
+    });
+  }
+
   async validateUser(userLoginDto: UserLoginDto): Promise<UserEntity> {
     const user = await this.userService.findOne({
       email: userLoginDto.email,
@@ -48,5 +67,37 @@ export class AuthService {
     }
 
     return user!;
+  }
+
+  async refreshAccessToken(
+    refreshToken: string,
+  ): Promise<TokenPayloadDto> {
+    try {
+      const payload = await this.jwtService.verifyAsync<{
+        userId: Uuid;
+        role: RoleType;
+        type: TokenType;
+      }>(refreshToken);
+
+      if (payload.type !== TokenType.REFRESH_TOKEN) {
+        throw new UnauthorizedException('Invalid token type');
+      }
+
+      const user = await this.userService.findOne({
+        id: payload.userId as never,
+        role: payload.role,
+      });
+
+      if (!user) {
+        throw new UnauthorizedException('User not found');
+      }
+
+      return this.createAccessToken({
+        userId: user.id,
+        role: user.role,
+      });
+    } catch (error) {
+      throw new UnauthorizedException('Invalid refresh token');
+    }
   }
 }

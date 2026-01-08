@@ -9,8 +9,16 @@ export class LoginPayloadDto {
   @ClassField(() => TokenPayloadDto)
   accessToken: TokenPayloadDto;
 
-  constructor(user: UserDto, token: TokenPayloadDto) {
+  @ClassField(() => TokenPayloadDto)
+  refreshToken: TokenPayloadDto;
+
+  constructor(
+    user: UserDto,
+    accessToken: TokenPayloadDto,
+    refreshToken: TokenPayloadDto,
+  ) {
     this.user = user;
-    this.accessToken = token;
+    this.accessToken = accessToken;
+    this.refreshToken = refreshToken;
   }
 }
