@@ -18,12 +18,14 @@ import { AuditModule } from './modules/audit/audit.module.ts';
 import { AuthModule } from './modules/auth/auth.module.ts';
 import { HealthCheckerModule } from './modules/health-checker/health-checker.module.ts';
 import { PostModule } from './modules/post/post.module.ts';
+import { RbacModule } from './modules/rbac/rbac.module.ts';
 import { UserModule } from './modules/user/user.module.ts';
 import { ApiConfigService } from './shared/services/api-config.service.ts';
 import { SharedModule } from './shared/shared.module.ts';
 
 @Module({
   imports: [
+    RbacModule,
     AuditModule,
     AuthModule,
     UserModule,
