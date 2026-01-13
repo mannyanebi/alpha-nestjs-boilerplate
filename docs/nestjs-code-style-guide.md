@@ -121,7 +121,7 @@ import { UserService } from './user.service.ts';
 
 ```typescript
 // Use type imports for types only
-import type { RoleType } from '../constants/role-type.ts';
+import { RoleType } from '../rbac/constants/roles.constant.ts';import { RoleType } from '../rbac/constants/roles.constant.ts';
 import type { Reference } from '../types.ts';
 
 // Do not use readonly for DTO properties

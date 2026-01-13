@@ -28,6 +28,7 @@ This document serves as the definitive guide for code style, patterns, and conve
 ## Project Overview
 
 This is a modern NestJS boilerplate built with:
+
 - **NestJS 11.x** - Progressive Node.js framework
 - **TypeScript 5.x** - Strict type checking enabled
 - **TypeORM 0.3.x** - Database ORM with PostgreSQL
@@ -97,7 +98,7 @@ import { UserService } from './user.service.ts';
 
 ```typescript
 // Use type imports for types only
-import type { RoleType } from '../constants/role-type.ts';
+import { RoleType } from '../rbac/constants/roles.constant.ts';
 import type { Reference } from '../types.ts';
 
 // Do not use readonly for DTO properties
@@ -771,7 +772,6 @@ export class ApiConfigService {
   }
 }
 ```
-
 
 ## Summary
 
