@@ -18,8 +18,6 @@ interface ISendOptions extends SendMailOptions {
 }
 
 type IHeaderValue = string | string[] | { prepared: boolean; value: string };
-type NodemailerModule = typeof import('nodemailer');
-
 @Injectable()
 export class MailerService {
   private readonly transporter: Transporter<SMTPTransport.SentMessageInfo>;
@@ -42,9 +40,7 @@ export class MailerService {
       },
     };
 
-    const nodemailerClient = nodemailer as NodemailerModule;
-
-    this.transporter = nodemailerClient.createTransport(transportOptions);
+    this.transporter = nodemailer.createTransport(transportOptions);
 
     this.defaultFrom = config.fromName
       ? `"${config.fromName}" <${config.fromEmail}>`
@@ -129,11 +125,13 @@ export class MailerService {
     }
 
     if (Array.isArray(headers)) {
-      return headers.reduce<Record<string, string>>((acc, header) => {
-        acc[header.key] = header.value;
+      const normalized: Record<string, string> = {};
 
-        return acc;
-      }, {});
+      for (const header of headers) {
+        normalized[header.key] = header.value;
+      }
+
+      return normalized;
     }
 
     const normalized: Record<string, string> = {};
@@ -144,7 +142,7 @@ export class MailerService {
         normalized[key] = value;
       } else if (Array.isArray(value)) {
         normalized[key] = value.join(',');
-      } else if (value && typeof value === 'object' && 'value' in value) {
+      } else if (typeof value === 'object' && 'value' in value) {
         normalized[key] = value.value;
       }
     }
