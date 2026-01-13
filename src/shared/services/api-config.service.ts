@@ -130,6 +130,19 @@ export class ApiConfigService {
     };
   }
 
+
+  get mailerConfig() {
+    return {
+      host: this.getString('MAILER_HOST'),
+      port: this.getNumber('MAILER_PORT'),
+      secure: this.getBoolean('MAILER_SECURE'),
+      user: this.getString('MAILER_USER'),
+      pass: this.getString('MAILER_PASSWORD'),
+      fromEmail: this.getString('MAILER_FROM_EMAIL'),
+      fromName: this.getString('MAILER_FROM_NAME', 'Croptera'),
+    };
+  }
+
   get documentationEnabled(): boolean {
     return this.getBoolean('ENABLE_DOCUMENTATION');
   }
