@@ -3,7 +3,6 @@ import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
-import { generateHash } from '../../common/utils.ts';
 import { RoleType } from '../../modules/rbac/constants/roles.constant.ts';
 import { RoleEntity } from '../../modules/rbac/entities/role.entity.ts';
 import { seedRbacData } from '../../modules/rbac/seeders/seed-rbac.ts';
@@ -112,11 +111,10 @@ export class SeederService {
       'Admin',
     );
 
-    const hashedPassword = generateHash(adminPassword);
-
+    // Don't hash here - let the entity do it
     const superAdmin = this.userRepository.create({
       email: adminEmail,
-      password: hashedPassword,
+      password: adminPassword, // Pass plain password
       firstName: adminFirstName,
       lastName: adminLastName,
       role: RoleType.SUPER_ADMIN,
