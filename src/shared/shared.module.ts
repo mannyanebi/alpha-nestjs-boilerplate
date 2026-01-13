@@ -7,6 +7,7 @@ import { AwsS3Service } from './services/aws-s3.service.ts';
 import { GeneratorService } from './services/generator.service.ts';
 import { TranslationService } from './services/translation.service.ts';
 import { ValidatorService } from './services/validator.service.ts';
+import { MailerModule } from './services/mailer/mailer.module.ts';
 
 const providers: Provider[] = [
   ApiConfigService,
@@ -19,7 +20,7 @@ const providers: Provider[] = [
 @Global()
 @Module({
   providers,
-  imports: [CqrsModule],
-  exports: [...providers, CqrsModule],
+  imports: [CqrsModule, MailerModule],
+  exports: [...providers, CqrsModule, MailerModule],
 })
 export class SharedModule {}
