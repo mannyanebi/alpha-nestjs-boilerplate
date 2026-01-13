@@ -7591,7 +7591,7 @@ __metadata:
     typescript-eslint: "npm:^8.34.0"
     uuid: "npm:^11.1.0"
     vite: "npm:^6.3.5"
-    vite-plugin-node: "npm:^5.0.1"
+    vite-plugin-node: "npm:^7.0.0"
     vue: "npm:^3.5.16"
     vuepress: "npm:2.0.0-rc.19"
   languageName: unknown
@@ -8882,6 +8882,13 @@ __metadata:
   version: 1.11.13
   resolution: "dayjs@npm:1.11.13"
   checksum: 10c0/a3caf6ac8363c7dade9d1ee797848ddcf25c1ace68d9fe8678ecf8ba0675825430de5d793672ec87b24a69bf04a1544b176547b2539982275d5542a7955f35b7
+  languageName: node
+  linkType: hard
+
+"debounce@npm:^2.2.0":
+  version: 2.2.0
+  resolution: "debounce@npm:2.2.0"
+  checksum: 10c0/684536fe9a04c9eea46cf02f119f69aa4071813ba25b9b43370e1503ea60b34fd38d694c7145fa2be504f9d40e7e39354cb9ed155c70954a0eefa391aefe271c
   languageName: node
   linkType: hard
 
@@ -17996,20 +18003,21 @@ __metadata:
   languageName: node
   linkType: hard
 
-"vite-plugin-node@npm:^5.0.1":
-  version: 5.0.1
-  resolution: "vite-plugin-node@npm:5.0.1"
+"vite-plugin-node@npm:^7.0.0":
+  version: 7.0.0
+  resolution: "vite-plugin-node@npm:7.0.0"
   dependencies:
     "@rollup/pluginutils": "npm:^4.1.1"
     chalk: "npm:^4.1.2"
+    debounce: "npm:^2.2.0"
     debug: "npm:^4.3.2"
   peerDependencies:
     "@swc/core": ^1.7.26
-    vite: ^6.2.2
+    vite: ^7.0.0
   peerDependenciesMeta:
     "@swc/core":
       optional: true
-  checksum: 10c0/1eca056a3042cfe011f232be6e322ed2b7f2d5c46276ab7cd83b51ce5c596ff75bea30a2683d26177c9e1bf340b27a43b6c3f5d0302d977064d9d2396a06525d
+  checksum: 10c0/402691e3e0f9035b85d9b1587f73b0b31e9d4f93f2c80be85dc64860514fadae7d2063e53b21d2412fc9d0a36713dac2bbf275c62827a54380dcf99874c59dbc
   languageName: node
   linkType: hard
 
