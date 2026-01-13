@@ -9,5 +9,6 @@
     "rift.autostart": false,
     "i18n-ally.localesPaths": [
       "src/i18n"
-    ]
+    ],
+    "typescript.tsdk": "node_modules/typescript/lib"
 }
