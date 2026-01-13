@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-use-before-define */
+/* eslint-disable no-console */
 import type { DataSource } from 'typeorm';
 
 import { Permission } from '../constants/permissions.constant.ts';
@@ -7,8 +9,8 @@ import {
   RoleType,
 } from '../constants/roles.constant.ts';
 import { PermissionEntity } from '../entities/permission.entity.ts';
-import { RolePermissionEntity } from '../entities/role-permission.entity.ts';
 import { RoleEntity } from '../entities/role.entity.ts';
+import { RolePermissionEntity } from '../entities/role-permission.entity.ts';
 
 /**
  * Permission Matrix - Defines which permissions each role has
@@ -140,14 +142,13 @@ export async function seedRbacData(dataSource: DataSource): Promise<void> {
       action: action || 'all',
       description: getPermissionDescription(slug),
       requiresOwnership: slug.includes('.own'),
-      isWildcard: slug.endsWith('.*') || slug === '*',
+      isWildcard: slug.endsWith('.*') || slug === Permission.ALL,
       isActive: true,
     });
   });
 
-  const createdPermissions = await permissionRepository.save(
-    permissionsToCreate,
-  );
+  const createdPermissions =
+    await permissionRepository.save(permissionsToCreate);
   console.log(`✅ Created ${createdPermissions.length} permissions`);
 
   // Create permission map for quick lookup
@@ -289,5 +290,5 @@ function getPermissionDescription(slug: string): string {
     [Permission.ALL]: 'All permissions (Super Admin only)',
   };
 
-  return descriptions[slug] || `Permission: ${slug}`;
+  return descriptions[slug] ?? `Permission: ${slug}`;
 }
