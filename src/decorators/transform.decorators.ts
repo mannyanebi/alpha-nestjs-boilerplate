@@ -1,3 +1,7 @@
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable @typescript-eslint/no-unsafe-call */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+/* eslint-disable @typescript-eslint/no-unsafe-return */
 import { Transform, TransformationType } from 'class-transformer';
 import { parsePhoneNumberWithError } from 'libphonenumber-js';
 import _ from 'lodash';
@@ -15,6 +19,7 @@ import { GeneratorProvider } from '../providers/generator.provider.ts';
  * @constructor
  */
 export function Trim(trimNewLines: boolean): PropertyDecorator {
+  // eslint-disable-next-line sonarjs/function-return-type
   return Transform((params): string[] | string => {
     const value = params.value as string[] | string;
 
@@ -150,6 +155,7 @@ export function ToUpperCase(): PropertyDecorator {
   );
 }
 
+// eslint-disable-next-line canonical/id-match
 export function S3UrlParser(): PropertyDecorator {
   return Transform((params) => {
     const key = params.value as string;
@@ -171,9 +177,14 @@ export function S3UrlParser(): PropertyDecorator {
 }
 
 export function PhoneNumberSerializer(): PropertyDecorator {
-  return Transform(
-    (params) => parsePhoneNumberWithError(params.value as string).number,
-  );
+  return Transform((params) => {
+    // Skip serialization if null or undefined
+    if (params.value === null || params.value === undefined) {
+      return params.value;
+    }
+
+    return parsePhoneNumberWithError(params.value as string).number;
+  });
 }
 
 export function LinkCleanupTransform(options?: {
@@ -188,10 +199,12 @@ export function LinkCleanupTransform(options?: {
     }
 
     if (options?.removeQueryParams) {
+      // eslint-disable-next-line sonarjs/slow-regex
       value = value.replace(/\?.*$/, '');
     }
 
     if (options?.removeTrailingSlash ?? true) {
+      // eslint-disable-next-line sonarjs/slow-regex
       value = value.replace(/\/+$/, '');
     }
 

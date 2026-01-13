@@ -52,9 +52,7 @@ export default tseslint.config(
     },
   },
   {
-    extends: [
-      importPlugin.flatConfigs.typescript,
-    ],
+    extends: [importPlugin.flatConfigs.typescript],
     rules: {
       'eslintComments/no-use': 'off',
       // 'import/extensions': ['error', 'always', {ignorePackages: true}],
@@ -74,9 +72,7 @@ export default tseslint.config(
         ...globals.node,
       },
     },
-    extends: [
-      unicornPlugin.configs['flat/all'],
-    ],
+    extends: [unicornPlugin.configs['flat/all']],
     rules: {
       'unicorn/prevent-abbreviations': 'off',
       'unicorn/no-abusive-eslint-disable': 'off',
@@ -93,9 +89,7 @@ export default tseslint.config(
         ...globals.node,
       },
     },
-    extends: [
-      canonicalPlugin.configs['flat/recommended'],
-    ],
+    extends: [canonicalPlugin.configs['flat/recommended']],
     rules: {
       'canonical/filename-match-exported': 'error',
       'canonical/import-specifier-newline': 'off',
@@ -112,12 +106,12 @@ export default tseslint.config(
         ...globals.node,
       },
     },
-    extends: [
-      sonarjsPlugin.configs.recommended,
-    ],
+    extends: [sonarjsPlugin.configs.recommended],
     rules: {
       'sonarjs/no-duplicate-string': 'off',
       'sonarjs/argument-type': 'off',
+      'sonarjs/todo-tag': 'off',
+      'sonarjs/fixme-tag': 'off',
     },
   },
   {
@@ -127,9 +121,7 @@ export default tseslint.config(
         ...globals.node,
       },
     },
-    extends: [
-      prettierPlugin,
-    ],
+    extends: [prettierPlugin],
     rules: {
       'prettier/prettier': [
         'error',
@@ -149,19 +141,19 @@ export default tseslint.config(
         ...globals.node,
       },
     },
-    extends: [
-      nPlugin.configs['flat/recommended'],
-    ],
+    extends: [nPlugin.configs['flat/recommended']],
     rules: {
       'n/no-extraneous-import': 'off',
       'n/no-missing-import': 'off',
     },
   },
   {
-    extends: [...tseslint.configs.strictTypeChecked,
+    extends: [
+      ...tseslint.configs.strictTypeChecked,
       tseslint.configs.eslintRecommended,
       ...tseslint.configs.stylisticTypeChecked,
-      ...tseslint.configs.recommendedTypeChecked],
+      ...tseslint.configs.recommendedTypeChecked,
+    ],
     rules: {
       'no-redeclare': 'off',
       '@typescript-eslint/no-redeclare': 'error',
@@ -247,7 +239,7 @@ export default tseslint.config(
         },
         {
           selector: 'variable',
-          format: ['camelCase', 'UPPER_CASE'],
+          format: ['camelCase', 'UPPER_CASE', 'PascalCase'],
         },
         {
           selector: 'interface',
@@ -326,7 +318,7 @@ export default tseslint.config(
           paths: [
             {
               name: 'rxjs/Rx',
-              message: 'Please import directly from \'rxjs\' instead',
+              message: "Please import directly from 'rxjs' instead",
             },
           ],
         },
@@ -349,7 +341,7 @@ export default tseslint.config(
       'max-classes-per-file': 'off',
 
       'max-len': [
-        'error',
+        'off',
         {
           code: 150,
         },

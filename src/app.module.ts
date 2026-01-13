@@ -1,5 +1,6 @@
 import path from 'node:path';
 
+import type { OnModuleInit } from '@nestjs/common';
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { ThrottlerModule } from '@nestjs/throttler';
@@ -14,15 +15,22 @@ import {
 import { DataSource } from 'typeorm';
 import { addTransactionalDataSource } from 'typeorm-transactional';
 
+import { AuditModule } from './modules/audit/audit.module.ts';
 import { AuthModule } from './modules/auth/auth.module.ts';
 import { HealthCheckerModule } from './modules/health-checker/health-checker.module.ts';
 import { PostModule } from './modules/post/post.module.ts';
+import { RbacModule } from './modules/rbac/rbac.module.ts';
 import { UserModule } from './modules/user/user.module.ts';
+import { SeederModule } from './shared/seeder.module.ts';
 import { ApiConfigService } from './shared/services/api-config.service.ts';
+import { SeederService } from './shared/services/seeder.service.ts';
 import { SharedModule } from './shared/shared.module.ts';
 
 @Module({
   imports: [
+    SeederModule,
+    RbacModule,
+    AuditModule,
     AuthModule,
     UserModule,
     PostModule,
@@ -79,4 +87,10 @@ import { SharedModule } from './shared/shared.module.ts';
   ],
   providers: [],
 })
-export class AppModule {}
+export class AppModule implements OnModuleInit {
+  constructor(private readonly seederService: SeederService) {}
+
+  async onModuleInit() {
+    await this.seederService.seed();
+  }
+}

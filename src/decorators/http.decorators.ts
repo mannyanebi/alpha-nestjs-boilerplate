@@ -12,8 +12,8 @@ import {
   ApiParam,
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
+import type { RoleType } from 'modules/rbac/constants/roles.constant.ts';
 
-import type { RoleType } from '../constants/role-type.ts';
 import { AuthGuard } from '../guards/auth.guard.ts';
 import { RolesGuard } from '../guards/roles.guard.ts';
 import { AuthUserInterceptor } from '../interceptors/auth-user-interceptor.service.ts';

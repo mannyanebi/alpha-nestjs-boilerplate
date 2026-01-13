@@ -2,10 +2,10 @@ import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 
 import { validateHash } from '../../common/utils.ts';
-import type { RoleType } from '../../constants/role-type.ts';
 import { TokenType } from '../../constants/token-type.ts';
 import { UserNotFoundException } from '../../exceptions/user-not-found.exception.ts';
 import { ApiConfigService } from '../../shared/services/api-config.service.ts';
+import { RoleType } from '../rbac/constants/roles.constant.ts';
 import type { UserEntity } from '../user/user.entity.ts';
 import { UserService } from '../user/user.service.ts';
 import { TokenPayloadDto } from './dto/token-payload.dto.ts';
@@ -69,9 +69,7 @@ export class AuthService {
     return user!;
   }
 
-  async refreshAccessToken(
-    refreshToken: string,
-  ): Promise<TokenPayloadDto> {
+  async refreshAccessToken(refreshToken: string): Promise<TokenPayloadDto> {
     try {
       const payload = await this.jwtService.verifyAsync<{
         userId: Uuid;
@@ -92,11 +90,13 @@ export class AuthService {
         throw new UnauthorizedException('User not found');
       }
 
-      return this.createAccessToken({
+      const accessToken = await this.createAccessToken({
         userId: user.id,
         role: user.role,
       });
-    } catch (error) {
+
+      return accessToken;
+    } catch {
       throw new UnauthorizedException('Invalid refresh token');
     }
   }

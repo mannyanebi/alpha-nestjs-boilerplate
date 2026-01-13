@@ -17,7 +17,6 @@ import {
 } from '@nestjs/swagger';
 
 import type { PageDto } from '../../common/dto/page.dto.ts';
-import { RoleType } from '../../constants/role-type.ts';
 import { ApiPageResponse } from '../../decorators/api-page-response.decorator.ts';
 import { AuthUser } from '../../decorators/auth-user.decorator.ts';
 import {
@@ -26,6 +25,7 @@ import {
   UUIDParam,
 } from '../../decorators/http.decorators.ts';
 import { UseLanguageInterceptor } from '../../interceptors/language-interceptor.service.ts';
+import { RoleType } from '../rbac/constants/roles.constant.ts';
 import { UserEntity } from '../user/user.entity.ts';
 import { CreatePostDto } from './dtos/create-post.dto.ts';
 import { PostDto } from './dtos/post.dto.ts';
@@ -39,7 +39,7 @@ export class PostController {
   constructor(private postService: PostService) {}
 
   @Post()
-  @Auth([RoleType.USER])
+  @Auth([RoleType.SENIOR_AGRONOMIST])
   @HttpCode(HttpStatus.CREATED)
   @ApiCreatedResponse({ type: PostDto })
   async createPost(
@@ -55,7 +55,7 @@ export class PostController {
   }
 
   @Get()
-  @Auth([RoleType.USER])
+  @Auth([RoleType.AGRONOMIST])
   @UseLanguageInterceptor()
   @ApiPageResponse({ type: PostDto })
   async getPosts(
