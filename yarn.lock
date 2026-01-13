@@ -127,23 +127,25 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@antfu/ni@npm:^24.3.0":
-  version: 24.4.0
-  resolution: "@antfu/ni@npm:24.4.0"
+"@antfu/ni@npm:^27.0.1":
+  version: 27.0.1
+  resolution: "@antfu/ni@npm:27.0.1"
   dependencies:
-    ansis: "npm:^4.0.0"
+    ansis: "npm:^4.2.0"
     fzf: "npm:^0.5.2"
-    package-manager-detector: "npm:^1.3.0"
+    package-manager-detector: "npm:^1.5.0"
     tinyexec: "npm:^1.0.1"
+    tinyglobby: "npm:^0.2.15"
   bin:
     na: bin/na.mjs
     nci: bin/nci.mjs
+    nd: bin/nd.mjs
     ni: bin/ni.mjs
     nlx: bin/nlx.mjs
     nr: bin/nr.mjs
-    nu: bin/nu.mjs
     nun: bin/nun.mjs
-  checksum: 10c0/91daffd5e0c005de946cb372c91248dc55d8e4ab8c92cde12d62f2c9e92683e20bd158f903d1672f5c7ec85c9def03d7d4ef88682c8c7ca1345474bf37c613b3
+    nup: bin/nup.mjs
+  checksum: 10c0/9ebe96de4fed6a9c8077439a30513428f2507d6f6742902af6fd2c45fe5088c1511c2ff40acd81642047240541698e2917c40a5cd7e874721df7d62eb3dcd9c1
   languageName: node
   linkType: hard
 
@@ -3968,12 +3970,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@quansync/fs@npm:^0.1.1":
-  version: 0.1.3
-  resolution: "@quansync/fs@npm:0.1.3"
+"@quansync/fs@npm:^1.0.0":
+  version: 1.0.0
+  resolution: "@quansync/fs@npm:1.0.0"
   dependencies:
-    quansync: "npm:^0.2.10"
-  checksum: 10c0/15d9914328d296df6626b6b2d5e9f455f618d5c8ffff09270ca3ce42c1bd21e4a91b53d6c1d857fbcae3be8c07b33ab82a83532870f2c5bf74904fe0ac60a3d1
+    quansync: "npm:^1.0.0"
+  checksum: 10c0/41a7e145d4fc349eaeac20ee7ffe0c876a7c26b2268d5704b462b3e7379091221336e315b2b346d5b07a531502a41cad15c9f374800cc60b6339d074ef99aa16
   languageName: node
   linkType: hard
 
@@ -7218,10 +7220,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ansis@npm:^4.0.0":
-  version: 4.0.0
-  resolution: "ansis@npm:4.0.0"
-  checksum: 10c0/8e549bbf0e838dbaf2ba079a47c18a7955489bc2753d20b29b3dc436d87566a40de68b4b3dad848b2efd52a3a993f4e7ec9991009185ee6556a77ff755fef234
+"ansis@npm:^4.2.0":
+  version: 4.2.0
+  resolution: "ansis@npm:4.2.0"
+  checksum: 10c0/cd6a7a681ecd36e72e0d79c1e34f1f3bcb1b15bcbb6f0f8969b4228062d3bfebbef468e09771b00d93b2294370b34f707599d4a113542a876de26823b795b5d2
   languageName: node
   linkType: hard
 
@@ -7581,7 +7583,7 @@ __metadata:
     sass-embedded: "npm:^1.89.2"
     supertest: "npm:^7.1.1"
     swagger-ui-express: "npm:^5.0.1"
-    taze: "npm:^19.1.0"
+    taze: "npm:^19.9.2"
     ts-jest: "npm:^29.3.4"
     ts-node: "npm:^10.9.2"
     tslib: "npm:^2.8.1"
@@ -9070,7 +9072,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"destr@npm:^2.0.3":
+"destr@npm:^2.0.3, destr@npm:^2.0.5":
   version: 2.0.5
   resolution: "destr@npm:2.0.5"
   checksum: 10c0/efabffe7312a45ad90d79975376be958c50069f1156b94c181199763a7f971e113bd92227c26b94a169c71ca7dbc13583b7e96e5164743969fc79e1ff153e646
@@ -10671,6 +10673,18 @@ __metadata:
     picomatch:
       optional: true
   checksum: 10c0/6ccc33be16945ee7bc841e1b4178c0b4cf18d3804894cb482aa514651c962a162f96da7ffc6ebfaf0df311689fb70091b04dd6caffe28d56b9ebdc0e7ccadfdd
+  languageName: node
+  linkType: hard
+
+"fdir@npm:^6.5.0":
+  version: 6.5.0
+  resolution: "fdir@npm:6.5.0"
+  peerDependencies:
+    picomatch: ^3 || ^4
+  peerDependenciesMeta:
+    picomatch:
+      optional: true
+  checksum: 10c0/e345083c4306b3aed6cb8ec551e26c36bab5c511e99ea4576a16750ddc8d3240e63826cc624f5ae17ad4dc82e68a253213b60d556c11bfad064b7607847ed07f
   languageName: node
   linkType: hard
 
@@ -12906,6 +12920,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"jiti@npm:^2.6.1":
+  version: 2.6.1
+  resolution: "jiti@npm:2.6.1"
+  bin:
+    jiti: lib/jiti-cli.mjs
+  checksum: 10c0/79b2e96a8e623f66c1b703b98ec1b8be4500e1d217e09b09e343471bbb9c105381b83edbb979d01cef18318cc45ce6e153571b6c83122170eefa531c64b6789b
+  languageName: node
+  linkType: hard
+
 "js-tokens@npm:^4.0.0":
   version: 4.0.0
   resolution: "js-tokens@npm:4.0.0"
@@ -14077,10 +14100,17 @@ __metadata:
   languageName: node
   linkType: hard
 
-"node-fetch-native@npm:^1.6.4, node-fetch-native@npm:^1.6.6":
+"node-fetch-native@npm:^1.6.6":
   version: 1.6.6
   resolution: "node-fetch-native@npm:1.6.6"
   checksum: 10c0/8c12dab0e640d8bc126a03d604af9cf3fc1b87f2cda5af0c71601079d5ed835c1dc149c7042b61c83f252a382e1cf1e541788f4c9e8e6c089af77497190f5dc3
+  languageName: node
+  linkType: hard
+
+"node-fetch-native@npm:^1.6.7":
+  version: 1.6.7
+  resolution: "node-fetch-native@npm:1.6.7"
+  checksum: 10c0/8b748300fb053d21ca4d3db9c3ff52593d5e8f8a2d9fe90cbfad159676e324b954fdaefab46aeca007b5b9edab3d150021c4846444e4e8ab1f4e44cd3807be87
   languageName: node
   linkType: hard
 
@@ -14316,14 +14346,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ofetch@npm:^1.4.1":
-  version: 1.4.1
-  resolution: "ofetch@npm:1.4.1"
+"ofetch@npm:^1.5.1":
+  version: 1.5.1
+  resolution: "ofetch@npm:1.5.1"
   dependencies:
-    destr: "npm:^2.0.3"
-    node-fetch-native: "npm:^1.6.4"
-    ufo: "npm:^1.5.4"
-  checksum: 10c0/fd712e84058ad5058a5880fe805e9bb1c2084fb7f9c54afa99a2c7e84065589b4312fa6e2dcca4432865e44ad1ec13fcd055c1bf7977ced838577a45689a04fa
+    destr: "npm:^2.0.5"
+    node-fetch-native: "npm:^1.6.7"
+    ufo: "npm:^1.6.1"
+  checksum: 10c0/97ebc600512ea0ab401e97c73313218cc53c9b530b32ec8c995c347b0c68887129993168d1753f527761a64c6f93a5d823ce1378ccec95fc65a606f323a79a6c
   languageName: node
   linkType: hard
 
@@ -14573,10 +14603,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"package-manager-detector@npm:^1.3.0":
-  version: 1.3.0
-  resolution: "package-manager-detector@npm:1.3.0"
-  checksum: 10c0/b4b54a81a3230edd66564a59ff6a2233086961e36ba91a28a0f6d6932a8dec36618ace50e8efec9c4d8c6aa9828e98814557a39fb6b106c161434ccb44a80e1c
+"package-manager-detector@npm:^1.5.0":
+  version: 1.6.0
+  resolution: "package-manager-detector@npm:1.6.0"
+  checksum: 10c0/6419d0b840be64fd45bcdcb7a19f09b81b65456d5e7f7a3daac305a4c90643052122f6ac0308afe548ffee75e36148532a2002ea9d292754f1e385aa2e1ea03b
   languageName: node
   linkType: hard
 
@@ -14940,6 +14970,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"picomatch@npm:^4.0.3":
+  version: 4.0.3
+  resolution: "picomatch@npm:4.0.3"
+  checksum: 10c0/9582c951e95eebee5434f59e426cddd228a7b97a0161a375aed4be244bd3fe8e3a31b846808ea14ef2c8a2527a6eeab7b3946a67d5979e81694654f939473ae2
+  languageName: node
+  linkType: hard
+
 "pidtree@npm:^0.6.0":
   version: 0.6.0
   resolution: "pidtree@npm:0.6.0"
@@ -14995,12 +15032,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"pnpm-workspace-yaml@npm:^0.3.1":
-  version: 0.3.1
-  resolution: "pnpm-workspace-yaml@npm:0.3.1"
+"pnpm-workspace-yaml@npm:^1.3.0":
+  version: 1.4.3
+  resolution: "pnpm-workspace-yaml@npm:1.4.3"
   dependencies:
-    yaml: "npm:^2.7.0"
-  checksum: 10c0/0396464b9e7c5f2c89a4a19f11b5cd58bdbb641250118a6ac358d711a0a4c04079b21f645a31e5aabda16bc2f3f5355fc7e73cd381c2fbd74578856100935aae
+    yaml: "npm:^2.8.2"
+  checksum: 10c0/c3573629f983db0aeb9324dc7ece1cebf7379f7aff1f625ca2a03a997cb8a6e084e68c862a8fa837408c1166786276bcf42332c358c37a4b0a4e24d09e85dd40
   languageName: node
   linkType: hard
 
@@ -15238,10 +15275,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"quansync@npm:^0.2.10, quansync@npm:^0.2.8":
-  version: 0.2.10
-  resolution: "quansync@npm:0.2.10"
-  checksum: 10c0/f86f1d644f812a3a7c42de79eb401c47a5a67af82a9adff8a8afb159325e03e00f77cebbf42af6340a0bd47bd0c1fbe999e7caf7e1bbb30d7acb00c8729b7530
+"quansync@npm:^1.0.0":
+  version: 1.0.0
+  resolution: "quansync@npm:1.0.0"
+  checksum: 10c0/076542634399a0cc46078baab6b31acee7a88c5a435234345f645aedaa42bc6a63836e655fb39b1b21a83c98ec86a4b73ec5e2b2d6f3fdc22711eeeff9463253
   languageName: node
   linkType: hard
 
@@ -17033,25 +17070,25 @@ __metadata:
   languageName: node
   linkType: hard
 
-"taze@npm:^19.1.0":
-  version: 19.1.0
-  resolution: "taze@npm:19.1.0"
+"taze@npm:^19.9.2":
+  version: 19.9.2
+  resolution: "taze@npm:19.9.2"
   dependencies:
-    "@antfu/ni": "npm:^24.3.0"
+    "@antfu/ni": "npm:^27.0.1"
     cac: "npm:^6.7.14"
     find-up-simple: "npm:^1.0.1"
-    ofetch: "npm:^1.4.1"
-    package-manager-detector: "npm:^1.3.0"
+    ofetch: "npm:^1.5.1"
+    package-manager-detector: "npm:^1.5.0"
     pathe: "npm:^2.0.3"
-    pnpm-workspace-yaml: "npm:^0.3.1"
+    pnpm-workspace-yaml: "npm:^1.3.0"
     restore-cursor: "npm:^5.1.0"
-    tinyexec: "npm:^1.0.1"
-    tinyglobby: "npm:^0.2.13"
-    unconfig: "npm:^7.3.2"
-    yaml: "npm:^2.7.1"
+    tinyexec: "npm:^1.0.2"
+    tinyglobby: "npm:^0.2.15"
+    unconfig: "npm:^7.4.1"
+    yaml: "npm:^2.8.1"
   bin:
     taze: bin/taze.mjs
-  checksum: 10c0/ae069bcf3a8619292e1e433b582dbb26f6ba03c718a5c55d9aee726b61adbebad208a6e9f44a7d6485bebe0c306eaac155be6050b891a8cea7d80824b28c91f0
+  checksum: 10c0/de9a39b1f0138ed70aa82d2625808f3b7e0f540d9a7415ccb77f9eb5f8052908562d9d7599bfbea06fe172377f8c5e849ce249b1e73ee83b7a91270f8a29231d
   languageName: node
   linkType: hard
 
@@ -17157,6 +17194,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"tinyexec@npm:^1.0.2":
+  version: 1.0.2
+  resolution: "tinyexec@npm:1.0.2"
+  checksum: 10c0/1261a8e34c9b539a9aae3b7f0bb5372045ff28ee1eba035a2a059e532198fe1a182ec61ac60fa0b4a4129f0c4c4b1d2d57355b5cb9aa2d17ac9454ecace502ee
+  languageName: node
+  linkType: hard
+
 "tinyglobby@npm:0.2.14, tinyglobby@npm:^0.2.13, tinyglobby@npm:^0.2.14":
   version: 0.2.14
   resolution: "tinyglobby@npm:0.2.14"
@@ -17174,6 +17218,16 @@ __metadata:
     fdir: "npm:^6.4.3"
     picomatch: "npm:^4.0.2"
   checksum: 10c0/7c9be4fd3625630e262dcb19015302aad3b4ba7fc620f269313e688f2161ea8724d6cb4444baab5ef2826eb6bed72647b169a33ec8eea37501832a2526ff540f
+  languageName: node
+  linkType: hard
+
+"tinyglobby@npm:^0.2.15":
+  version: 0.2.15
+  resolution: "tinyglobby@npm:0.2.15"
+  dependencies:
+    fdir: "npm:^6.5.0"
+    picomatch: "npm:^4.0.3"
+  checksum: 10c0/869c31490d0d88eedb8305d178d4c75e7463e820df5a9b9d388291daf93e8b1eb5de1dad1c1e139767e4269fe75f3b10d5009b2cc14db96ff98986920a186844
   languageName: node
   linkType: hard
 
@@ -17682,10 +17736,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ufo@npm:^1.5.4":
-  version: 1.6.1
-  resolution: "ufo@npm:1.6.1"
-  checksum: 10c0/5a9f041e5945fba7c189d5410508cbcbefef80b253ed29aa2e1f8a2b86f4bd51af44ee18d4485e6d3468c92be9bf4a42e3a2b72dcaf27ce39ce947ec994f1e6b
+"ufo@npm:^1.6.1":
+  version: 1.6.2
+  resolution: "ufo@npm:1.6.2"
+  checksum: 10c0/cc2610b48803d4c73b375e4fd43b0db63e9413726637a4974be2a382a5c971696a64d28d0f107d6ff3b4570e0a031f436d79fe545c3c070d6525130a4abaf39c
   languageName: node
   linkType: hard
 
@@ -17727,15 +17781,26 @@ __metadata:
   languageName: node
   linkType: hard
 
-"unconfig@npm:^7.3.2":
-  version: 7.3.2
-  resolution: "unconfig@npm:7.3.2"
+"unconfig-core@npm:7.4.2":
+  version: 7.4.2
+  resolution: "unconfig-core@npm:7.4.2"
   dependencies:
-    "@quansync/fs": "npm:^0.1.1"
+    "@quansync/fs": "npm:^1.0.0"
+    quansync: "npm:^1.0.0"
+  checksum: 10c0/12aa85c78114a505fb49adc5fd6c2ce58b1661c517caea7f8943b9f56912634bfd085443a84d7675a0b245598e6220daaff0a69e3dd712819e0d05195fcfb75b
+  languageName: node
+  linkType: hard
+
+"unconfig@npm:^7.4.1":
+  version: 7.4.2
+  resolution: "unconfig@npm:7.4.2"
+  dependencies:
+    "@quansync/fs": "npm:^1.0.0"
     defu: "npm:^6.1.4"
-    jiti: "npm:^2.4.2"
-    quansync: "npm:^0.2.8"
-  checksum: 10c0/245a0add92413b9a04a0bad879c7ee4d6904e58c9d091dbb1ea89fb7491d22d0f2ad17bd561329e006cb1954b5ece00f4cd9f9300a72af5013a927dc7fd5d27b
+    jiti: "npm:^2.6.1"
+    quansync: "npm:^1.0.0"
+    unconfig-core: "npm:7.4.2"
+  checksum: 10c0/8423963303297e1e4213323b87bfa265fb893806d10bc8f7b38d40dab17fcb5f6173683b8400b275687a2c78839d61215679fb41895f5465713f700205464687
   languageName: node
   linkType: hard
 
@@ -18525,21 +18590,21 @@ __metadata:
   languageName: node
   linkType: hard
 
-"yaml@npm:^2.7.0":
-  version: 2.7.0
-  resolution: "yaml@npm:2.7.0"
-  bin:
-    yaml: bin.mjs
-  checksum: 10c0/886a7d2abbd70704b79f1d2d05fe9fb0aa63aefb86e1cb9991837dced65193d300f5554747a872b4b10ae9a12bc5d5327e4d04205f70336e863e35e89d8f4ea9
-  languageName: node
-  linkType: hard
-
-"yaml@npm:^2.7.1, yaml@npm:^2.8.0":
+"yaml@npm:^2.8.0":
   version: 2.8.0
   resolution: "yaml@npm:2.8.0"
   bin:
     yaml: bin.mjs
   checksum: 10c0/f6f7310cf7264a8107e72c1376f4de37389945d2fb4656f8060eca83f01d2d703f9d1b925dd8f39852a57034fafefde6225409ddd9f22aebfda16c6141b71858
+  languageName: node
+  linkType: hard
+
+"yaml@npm:^2.8.1, yaml@npm:^2.8.2":
+  version: 2.8.2
+  resolution: "yaml@npm:2.8.2"
+  bin:
+    yaml: bin.mjs
+  checksum: 10c0/703e4dc1e34b324aa66876d63618dcacb9ed49f7e7fe9b70f1e703645be8d640f68ab84f12b86df8ac960bac37acf5513e115de7c970940617ce0343c8c9cd96
   languageName: node
   linkType: hard
 
