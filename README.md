@@ -1,4 +1,4 @@
-# Croptera Backend
+# Alpha Nestjs Boilerplate
 
 A production-ready NestJS boilerplate with TypeScript, PostgreSQL, TypeORM, JWT authentication, role-based access control, and comprehensive API documentation.
 
