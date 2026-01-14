@@ -1,10 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
-import type { SendMailOptions, Transporter } from 'nodemailer';
-import nodemailer from 'nodemailer';
-import type SMTPTransport from 'nodemailer/lib/smtp-transport';
+import { SendMailClient } from 'zeptomail';
 
 import { ApiConfigService } from '../api-config.service.ts';
-import { buildWelcomeEmailTemplate } from './templates/welcome-email.template.ts';
 
 interface IZeptoHeadersOptions {
   fileCacheKey?: string | string[];
@@ -13,82 +10,80 @@ interface IZeptoHeadersOptions {
   clientRef?: string;
 }
 
-interface ISendOptions extends SendMailOptions {
+type MailAddress = string | { address: string; name?: string };
+
+type IHeaderValue = string | string[] | { prepared: boolean; value: string };
+
+type MailHeaders =
+  | Record<string, IHeaderValue>
+  | Array<{ key: string; value: string }>;
+
+type SendMailRequest = Parameters<SendMailClient['sendMail']>[0];
+type SendMailRequestWithHeaders = SendMailRequest & {
+  headers?: Record<string, string>;
+};
+
+interface ISendOptions {
+  to: MailAddress | MailAddress[];
+  from?: MailAddress;
+  subject: string;
+  html?: string;
+  text?: string;
+  headers?: MailHeaders;
   zepto?: IZeptoHeadersOptions;
 }
 
-type IHeaderValue = string | string[] | { prepared: boolean; value: string };
 @Injectable()
 export class MailerService {
-  private readonly transporter: Transporter<SMTPTransport.SentMessageInfo>;
+  private readonly client: SendMailClient;
 
-  private readonly defaultFrom: string;
+  private readonly defaultFrom: { address: string; name: string };
 
   private readonly logger = new Logger(MailerService.name);
 
   constructor(private readonly configService: ApiConfigService) {
     const config = this.configService.mailerConfig;
 
-    const transportOptions: SMTPTransport.Options = {
-      host: config.host,
-      port: config.port,
-      secure: config.secure,
-      auth: {
-        user: config.user,
-        pass: config.pass,
-      },
-      tls: {
-        minVersion: 'TLSv1.2',
-      },
+    this.client = new SendMailClient({
+      url: config.apiUrl,
+      token: config.apiToken,
+    });
+
+    this.defaultFrom = {
+      address: config.fromEmail,
+      name: config.fromName,
     };
-
-    this.transporter = nodemailer.createTransport(transportOptions);
-
-    this.defaultFrom = config.fromName
-      ? `"${config.fromName}" <${config.fromEmail}>`
-      : config.fromEmail;
   }
 
   async sendMail(options: ISendOptions): Promise<void> {
     const { zepto, headers, ...mailOptions } = options;
     const zeptoHeaders = this.buildZeptoHeaders(zepto);
     const normalizedHeaders = this.normalizeHeaders(headers);
+    const mergedHeaders = { ...normalizedHeaders, ...zeptoHeaders };
 
-    await this.transporter.sendMail({
-      ...mailOptions,
-      from: mailOptions.from ?? this.defaultFrom,
-      headers: {
-        ...normalizedHeaders,
-        ...zeptoHeaders,
-      },
-    });
+    if (!mailOptions.html && !mailOptions.text) {
+      throw new Error('Either html or text body must be provided.');
+    }
 
-    const recipient = this.formatRecipients(mailOptions.to) ?? 'unknown';
+    const from = this.ensureName(
+      this.normalizeAddress(mailOptions.from ?? this.defaultFrom),
+    );
+    const to = this.normalizeRecipients(mailOptions.to);
+
+    const payload: SendMailRequestWithHeaders = {
+      from,
+      to,
+      subject: mailOptions.subject,
+      htmlbody: mailOptions.html,
+      textbody: mailOptions.text,
+      headers:
+        Object.keys(mergedHeaders).length > 0 ? mergedHeaders : undefined,
+    };
+
+    await this.client.sendMail(payload);
+
+    const recipient = this.formatRecipients(mailOptions.to);
     this.logger.log(`email sent to ${recipient} successfully`);
-  }
-
-  async sendWelcomeEmail(params: {
-    to: string;
-    firstName: string;
-    appName: string;
-    loginUrl: string;
-    supportEmail?: string;
-    zepto?: IZeptoHeadersOptions;
-  }): Promise<void> {
-    const template = buildWelcomeEmailTemplate({
-      firstName: params.firstName,
-      appName: params.appName,
-      loginUrl: params.loginUrl,
-      supportEmail: params.supportEmail,
-    });
-
-    await this.sendMail({
-      to: params.to,
-      subject: template.subject,
-      html: template.html,
-      text: template.text,
-      zepto: params.zepto,
-    });
   }
 
   private buildZeptoHeaders(
@@ -122,9 +117,7 @@ export class MailerService {
     return headers;
   }
 
-  private normalizeHeaders(
-    headers: ISendOptions['headers'],
-  ): Record<string, string> {
+  private normalizeHeaders(headers?: MailHeaders): Record<string, string> {
     if (!headers) {
       return {};
     }
@@ -140,7 +133,7 @@ export class MailerService {
     }
 
     const normalized: Record<string, string> = {};
-    const entries = Object.entries(headers) as Array<[string, IHeaderValue]>;
+    const entries = Object.entries(headers);
 
     for (const [key, value] of entries) {
       if (typeof value === 'string') {
@@ -155,7 +148,56 @@ export class MailerService {
     return normalized;
   }
 
-  private formatRecipients(recipients: SendMailOptions['to']): string | null {
+  private normalizeRecipients(
+    recipients: MailAddress | MailAddress[],
+  ): Array<{ email_address: { address: string; name: string } }> {
+    const list = Array.isArray(recipients) ? recipients : [recipients];
+
+    return list.map((recipient) => ({
+      email_address: this.ensureName(this.normalizeAddress(recipient)),
+    }));
+  }
+
+  private normalizeAddress(address: MailAddress): {
+    address: string;
+    name?: string;
+  } {
+    if (typeof address === 'string') {
+      return this.parseAddressString(address);
+    }
+
+    return address.name
+      ? { address: address.address, name: address.name }
+      : { address: address.address };
+  }
+
+  private parseAddressString(value: string): {
+    address: string;
+    name?: string;
+  } {
+    const trimmed = value.trim();
+    const ltIndex = trimmed.lastIndexOf('<');
+    const gtIndex = trimmed.lastIndexOf('>');
+
+    if (ltIndex !== -1 && gtIndex > ltIndex) {
+      const namePart = trimmed.slice(0, ltIndex).trim();
+      const addressPart = trimmed.slice(ltIndex + 1, gtIndex).trim();
+
+      if (addressPart) {
+        const cleanName = this.stripQuotes(namePart);
+
+        return cleanName
+          ? { address: addressPart, name: cleanName }
+          : { address: addressPart };
+      }
+    }
+
+    return { address: trimmed };
+  }
+
+  private formatRecipients(
+    recipients: MailAddress | MailAddress[],
+  ): string | null {
     if (!recipients) {
       return null;
     }
@@ -169,23 +211,37 @@ export class MailerService {
     return this.formatRecipient(recipients);
   }
 
-  private formatRecipient(recipient: unknown): string {
+  private formatRecipient(recipient: MailAddress): string {
     if (typeof recipient === 'string') {
-      return recipient;
+      const parsed = this.parseAddressString(recipient);
+
+      return parsed.name
+        ? `${parsed.name} <${parsed.address}>`
+        : parsed.address;
     }
 
-    if (recipient && typeof recipient === 'object') {
-      const maybeRecipient = recipient as { name?: unknown; address?: unknown };
-
-      if (typeof maybeRecipient.address === 'string') {
-        if (typeof maybeRecipient.name === 'string' && maybeRecipient.name) {
-          return `${maybeRecipient.name} <${maybeRecipient.address}>`;
-        }
-
-        return maybeRecipient.address;
-      }
+    if (recipient.name) {
+      return `${recipient.name} <${recipient.address}>`;
     }
 
-    return 'unknown';
+    return recipient.address;
+  }
+
+  private ensureName(address: { address: string; name?: string }): {
+    address: string;
+    name: string;
+  } {
+    if (address.name) {
+      return { address: address.address, name: address.name };
+    }
+
+    return {
+      address: address.address,
+      name: this.defaultFrom.name,
+    };
+  }
+
+  private stripQuotes(value: string): string {
+    return value.replaceAll('"', '');
   }
 }
