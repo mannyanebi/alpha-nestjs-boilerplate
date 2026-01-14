@@ -96,3 +96,7 @@ db-data
 
 # metadata.ts
 metadata.ts
+
+# Yarn v2
+.yarn/install-state.gz
+.yarn*
