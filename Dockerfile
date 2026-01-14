@@ -4,7 +4,7 @@ COPY package.json yarn.lock ./
 
 RUN yarn install
 
-COPY tsconfig.json tsconfig.build.json nest-cli.json ./
+COPY tsconfig.json tsconfig.build.json nest-cli.json .swcrc ./
 COPY src ./src
 
 RUN yarn build:prod
