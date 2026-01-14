@@ -2,11 +2,15 @@
 FROM node:22.18.0-alpine AS build
 WORKDIR /app
 
+# Copy Yarn configuration and release
+COPY .yarnrc.yml ./
+COPY .yarn ./.yarn
+
 # Copy dependency files
 COPY package.json yarn.lock ./
 
 # Install all dependencies (needed for build)
-RUN yarn install --frozen-lockfile
+RUN yarn install --immutable
 
 # Copy source and config files
 COPY tsconfig.json tsconfig.build.json nest-cli.json .swcrc ./
@@ -19,10 +23,14 @@ RUN yarn build:prod
 FROM node:22.18.0-alpine AS prod_dependencies
 WORKDIR /app
 
+# Copy Yarn configuration and release
+COPY .yarnrc.yml ./
+COPY .yarn ./.yarn
+
 COPY package.json yarn.lock ./
 
 # Install only production dependencies
-RUN yarn install --prod --frozen-lockfile
+RUN yarn workspaces focus --production
 
 # Stage 3: Run the application
 FROM node:22.18.0-alpine AS production
