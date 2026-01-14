@@ -31,7 +31,7 @@ export async function bootstrap(): Promise<NestExpressApplication> {
     new ExpressAdapter(),
     {
       cors: {
-        origin: process.env.CORS_ORIGINS?.split(',') || [
+        origin: process.env.CORS_ORIGINS?.split(',') ?? [
           'http://localhost:3000',
         ],
         methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
@@ -99,7 +99,11 @@ export async function bootstrap(): Promise<NestExpressApplication> {
   const port = configService.appConfig.port;
 
   // Always listen in development, conditionally in production
-  if (configService.isDevelopment || configService.isProduction) {
+  if (
+    configService.isDevelopment ||
+    configService.isStaging ||
+    configService.isProduction
+  ) {
     await app.listen(port);
     console.info(`server running on ${await app.getUrl()}`);
   }
@@ -107,4 +111,4 @@ export async function bootstrap(): Promise<NestExpressApplication> {
   return app;
 }
 
-export const viteNodeApp = bootstrap();
+export const viteNodeApp = await bootstrap();

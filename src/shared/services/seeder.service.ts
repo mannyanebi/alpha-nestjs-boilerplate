@@ -26,13 +26,6 @@ export class SeederService {
       'ENABLE_AUTO_SEED',
       false,
     );
-    const nodeEnv = this.configService.get<string>('NODE_ENV');
-
-    if (nodeEnv !== 'development') {
-      this.logger.debug('Seeding skipped: Not in development environment');
-
-      return;
-    }
 
     if (!isAutoSeedEnabled) {
       this.logger.debug('Seeding skipped: ENABLE_AUTO_SEED is false');
