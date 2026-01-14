@@ -99,3 +99,6 @@ db-data
 
 # metadata.ts
 metadata.ts
+
+# ca-certificate.crt
+.ca-certificate.crt
