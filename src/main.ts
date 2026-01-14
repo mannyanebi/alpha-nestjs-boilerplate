@@ -1,3 +1,4 @@
+/* eslint-disable unicorn/prefer-top-level-await */
 import './boilerplate.polyfill';
 
 import {
@@ -31,7 +32,7 @@ export async function bootstrap(): Promise<NestExpressApplication> {
     new ExpressAdapter(),
     {
       cors: {
-        origin: process.env.CORS_ORIGINS?.split(',') || [
+        origin: process.env.CORS_ORIGINS?.split(',') ?? [
           'http://localhost:3000',
         ],
         methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],

@@ -5,12 +5,14 @@ import { plainToClass } from 'class-transformer';
 import type { FindOptionsWhere } from 'typeorm';
 import { Repository } from 'typeorm';
 import { Transactional } from 'typeorm-transactional';
+import { v4 as uuid } from 'uuid';
 
 import type { PageDto } from '../../common/dto/page.dto.ts';
 import { FileNotImageException } from '../../exceptions/file-not-image.exception.ts';
 import { UserNotFoundException } from '../../exceptions/user-not-found.exception.ts';
 import type { IFile } from '../../interfaces/IFile.ts';
 import { AwsS3Service } from '../../shared/services/aws-s3.service.ts';
+// import type { MailerService } from '../../shared/services/mailer/mailer.service.ts';
 import { ValidatorService } from '../../shared/services/validator.service.ts';
 import type { Reference } from '../../types.ts';
 import { UserRegisterDto } from '../auth/dto/user-register.dto.ts';
@@ -29,11 +31,10 @@ export class UserService {
     private validatorService: ValidatorService,
     private awsS3Service: AwsS3Service,
     private commandBus: CommandBus,
+    //private mailerService: MailerService,
   ) {}
 
-  /**
-   * Find single user
-   */
+  /** Find single user */
   findOne(findData: FindOptionsWhere<UserEntity>): Promise<UserEntity | null> {
     return this.userRepository.findOneBy(findData);
   }
@@ -46,9 +47,7 @@ export class UserService {
       .leftJoinAndSelect<UserEntity, 'user'>('user.settings', 'settings');
 
     if (options.email) {
-      queryBuilder.orWhere('user.email = :email', {
-        email: options.email,
-      });
+      queryBuilder.orWhere('user.email = :email', { email: options.email });
     }
 
     if (options.username) {
@@ -61,19 +60,23 @@ export class UserService {
   }
 
   @Transactional()
-  async createUser(
-    userRegisterDto: UserRegisterDto,
+  async createRoleBasedUser(
+    createUserDto: UserRegisterDto,
     file?: Reference<IFile>,
   ): Promise<UserEntity> {
-    const user = this.userRepository.create(userRegisterDto);
-
-    if (file && !this.validatorService.isImage(file.mimetype)) {
-      throw new FileNotImageException();
-    }
+    const user = this.userRepository.create(createUserDto);
 
     if (file) {
+      if (!this.validatorService.isImage(file.mimetype)) {
+        throw new FileNotImageException();
+      }
+
       user.avatar = await this.awsS3Service.uploadImage(file);
     }
+
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+    const plainPassword = createUserDto.password ?? uuid().split('-')[0];
+    user.password = plainPassword;
 
     await this.userRepository.save(user);
 
@@ -85,7 +88,14 @@ export class UserService {
       }),
     );
 
-  }
+//     // Send welcome email
+//     await this.mailerService.sendMail({
+//       to: user.email!,
+//       subject: 'Test Email',
+//       text: `Hello ${user.firstName}, your account has been created. Your password is: ${plainPassword}`,
+//     });
+ return user;
+ }
 
   async getUsers(
     pageOptionsDto: UsersPageOptionsDto,
@@ -98,7 +108,6 @@ export class UserService {
 
   async getUser(userId: Uuid): Promise<UserDto> {
     const queryBuilder = this.userRepository.createQueryBuilder('user');
-
     queryBuilder.where('user.id = :userId', { userId });
 
     const userEntity = await queryBuilder.getOne();

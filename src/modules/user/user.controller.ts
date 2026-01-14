@@ -6,9 +6,12 @@ import {
   HttpStatus,
   Post,
   Query,
+  UploadedFile,
   ValidationPipe,
 } from '@nestjs/common';
 import { ApiResponse, ApiTags } from '@nestjs/swagger';
+import type { IFile } from 'interfaces/IFile.ts';
+import type { Reference } from 'types.ts';
 
 import { PageDto } from '../../common/dto/page.dto.ts';
 import { ApiPageResponse } from '../../decorators/api-page-response.decorator.ts';
@@ -22,6 +25,7 @@ import { UseLanguageInterceptor } from '../../interceptors/language-interceptor.
 import { TranslationService } from '../../shared/services/translation.service.ts';
 import { UserRegisterDto } from '../auth/dto/user-register.dto.ts';
 import { RoleType } from '../rbac/constants/roles.constant.ts';
+import { CreateUserDto } from './dtos/create-user.dto.ts';
 import { UserDto } from './dtos/user.dto.ts';
 import { UsersPageOptionsDto } from './dtos/users-page-options.dto.ts';
 import { UserEntity } from './user.entity.ts';
@@ -76,16 +80,18 @@ export class UserController {
     return this.userService.getUser(userId);
   }
 
-  @Post()
+  @Post('admin/create')
   @Auth([RoleType.SUPER_ADMIN])
-  @HttpCode(HttpStatus.CREATED)
-  async createUser(@Body() createUserDto: UserRegisterDto) {
-    const user = await this.userService.createUser(createUserDto);
+  @ApiResponse({ type: UserDto, description: 'User successfully created ' })
+  async createRoleBasedUser(
+    @Body() createUserDto: CreateUserDto,
+    @UploadedFile() file?: Reference<IFile>,
+  ): Promise<UserDto> {
+    const user = await this.userService.createRoleBasedUser(
+      createUserDto as UserRegisterDto,
+      file,
+    );
 
-    return {
-      id: user.id,
-      email: user.email,
-      message: `User created and password sent to ${user.email}`,
-    };
+    return user.toDto({ isActive: true });
   }
 }

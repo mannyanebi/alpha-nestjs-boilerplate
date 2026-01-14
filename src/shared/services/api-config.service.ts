@@ -130,7 +130,6 @@ export class ApiConfigService {
     };
   }
 
-
   get mailerConfig() {
     return {
       host: this.getString('MAILER_HOST'),
