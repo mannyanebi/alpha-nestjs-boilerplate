@@ -109,13 +109,17 @@ export class ApiConfigService {
       path.join(import.meta.dirname, `../../database/migrations/*{.ts,.js}`),
     ];
 
-    const sslConfig =
-      this.getString('DB_SSL_ENABLED') === 'true'
-        ? {
-            rejectUnauthorized: true,
-            ca: this.getString('DB_CA_CERT'),
-          }
-        : false;
+    // const sslConfig =
+    //   this.getString('DB_SSL_ENABLED') === 'true'
+    //     ? {
+    //         rejectUnauthorized: true,
+    //         ca: this.getString('DB_CA_CERT'),
+    //       }
+    //     : false;
+
+    const sslConfig = {
+      rejectUnauthorized: false,
+    };
 
     return {
       entities,
