@@ -35,6 +35,7 @@
     "test:cov": "NODE_ENV=test jest --coverage",
     "test:debug": "NODE_ENV=test node --inspect-brk -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "NODE_ENV=test jest --config ./test/jest-e2e.json",
+    "send:welcome": "node --loader ts-node/esm scripts/send-welcome-email.ts",
     "docs:dev": "vuepress dev -p 7070",
     "docs:build": "DEPLOY_ENV=gh-pages vuepress build",
     "docs:deploy": "yarn docs:build && gh-pages -d .vuepress/dist",
