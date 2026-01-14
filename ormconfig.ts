@@ -9,13 +9,11 @@ import { SnakeNamingStrategy } from './src/snake-naming.strategy';
 
 dotenv.config();
 
-// Debug environment variables
-
 const sslConfig =
   process.env.DB_SSL_ENABLED === 'true'
     ? {
         rejectUnauthorized: true,
-        ca: fs.readFileSync('./ca-certificate.crt').toString(),
+        ca: process.env.DB_CA_CERT,
       }
     : false;
 
@@ -35,5 +33,3 @@ export const dataSource = new DataSource({
   ],
   migrations: ['src/database/migrations/*{.ts,.js}'],
 });
-
-console.log('🚀 DataSource SSL Config:', dataSource.options.ssl);

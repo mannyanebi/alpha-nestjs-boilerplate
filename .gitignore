@@ -101,4 +101,4 @@ db-data
 metadata.ts
 
 # ca-certificate.crt
-.ca-certificate.crt
+ca-certificate.crt

@@ -1,4 +1,3 @@
-import fs from 'node:fs';
 import path from 'node:path';
 
 import { Injectable } from '@nestjs/common';
@@ -114,7 +113,7 @@ export class ApiConfigService {
       this.getString('DB_SSL_ENABLED') === 'true'
         ? {
             rejectUnauthorized: true,
-            ca: fs.readFileSync('./ca-certificate.crt').toString(),
+            ca: this.getString('DB_CA_CERT'),
           }
         : false;
 
