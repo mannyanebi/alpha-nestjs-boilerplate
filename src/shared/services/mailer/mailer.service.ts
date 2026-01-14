@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import type { SendMailOptions, Transporter } from 'nodemailer';
 import nodemailer from 'nodemailer';
 import type SMTPTransport from 'nodemailer/lib/smtp-transport';
@@ -23,6 +23,8 @@ export class MailerService {
   private readonly transporter: Transporter<SMTPTransport.SentMessageInfo>;
 
   private readonly defaultFrom: string;
+
+  private readonly logger = new Logger(MailerService.name);
 
   constructor(private readonly configService: ApiConfigService) {
     const config = this.configService.mailerConfig;
@@ -60,6 +62,9 @@ export class MailerService {
         ...zeptoHeaders,
       },
     });
+
+    const recipient = this.formatRecipients(mailOptions.to) ?? 'unknown';
+    this.logger.log(`email sent to ${recipient} successfully`);
   }
 
   async sendWelcomeEmail(params: {
@@ -148,5 +153,39 @@ export class MailerService {
     }
 
     return normalized;
+  }
+
+  private formatRecipients(recipients: SendMailOptions['to']): string | null {
+    if (!recipients) {
+      return null;
+    }
+
+    if (Array.isArray(recipients)) {
+      return recipients
+        .map((recipient) => this.formatRecipient(recipient))
+        .join(', ');
+    }
+
+    return this.formatRecipient(recipients);
+  }
+
+  private formatRecipient(recipient: unknown): string {
+    if (typeof recipient === 'string') {
+      return recipient;
+    }
+
+    if (recipient && typeof recipient === 'object') {
+      const maybeRecipient = recipient as { name?: unknown; address?: unknown };
+
+      if (typeof maybeRecipient.address === 'string') {
+        if (typeof maybeRecipient.name === 'string' && maybeRecipient.name) {
+          return `${maybeRecipient.name} <${maybeRecipient.address}>`;
+        }
+
+        return maybeRecipient.address;
+      }
+    }
+
+    return 'unknown';
   }
 }
