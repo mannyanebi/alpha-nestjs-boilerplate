@@ -58,6 +58,9 @@ typings/
 
 # dotenv environment variables file
 .env
+.env.production
+.env.local
+
 
 # next.js build output
 .next
@@ -96,7 +99,3 @@ db-data
 
 # metadata.ts
 metadata.ts
-
-# Yarn v2
-.yarn/install-state.gz
-.yarn*

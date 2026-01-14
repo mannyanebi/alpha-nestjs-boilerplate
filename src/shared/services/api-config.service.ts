@@ -17,6 +17,10 @@ export class ApiConfigService {
     return this.nodeEnv === 'development';
   }
 
+  get isStaging(): boolean {
+    return this.nodeEnv === 'staging';
+  }
+
   get isProduction(): boolean {
     return this.nodeEnv === 'production';
   }
@@ -132,13 +136,13 @@ export class ApiConfigService {
 
   get mailerConfig() {
     return {
-      host: this.getString('MAILER_HOST'),
-      port: this.getNumber('MAILER_PORT'),
-      secure: this.getBoolean('MAILER_SECURE'),
-      user: this.getString('MAILER_USER'),
-      pass: this.getString('MAILER_PASSWORD'),
+      apiUrl: this.getString(
+        'MAILER_API_URL',
+        'https://api.zeptomail.com/v1.1/email',
+      ),
+      apiToken: this.getString('MAILER_API_TOKEN'),
       fromEmail: this.getString('MAILER_FROM_EMAIL'),
-      fromName: this.getString('MAILER_FROM_NAME', 'Croptera'),
+      fromName: this.getString('MAILER_FROM_NAME', 'prosev'),
     };
   }
 
