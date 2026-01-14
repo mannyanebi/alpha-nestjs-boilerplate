@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unnecessary-type-parameters */
 import bcrypt from 'bcrypt';
 
 /**
@@ -44,4 +45,16 @@ export function getVariableName<TResult>(
   const memberParts = fullMemberName.split('.');
 
   return memberParts.at(-1);
+}
+
+export function generatePassword(length = 10): string {
+  const chars = 'abcdefghjkmnpqrstuvwxyzABCDEFGHJKMNPQRSTUVWXYZ23456789';
+  let password = '';
+
+  for (let i = 0; i < length; i++) {
+    // eslint-disable-next-line sonarjs/pseudo-random
+    password += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+
+  return password;
 }

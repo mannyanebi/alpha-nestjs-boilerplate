@@ -1,8 +1,10 @@
 import {
+  Body,
   Controller,
   Get,
   HttpCode,
   HttpStatus,
+  Post,
   Query,
   ValidationPipe,
 } from '@nestjs/common';
@@ -18,6 +20,7 @@ import {
 } from '../../decorators/http.decorators.ts';
 import { UseLanguageInterceptor } from '../../interceptors/language-interceptor.service.ts';
 import { TranslationService } from '../../shared/services/translation.service.ts';
+import { UserRegisterDto } from '../auth/dto/user-register.dto.ts';
 import { RoleType } from '../rbac/constants/roles.constant.ts';
 import { UserDto } from './dtos/user.dto.ts';
 import { UsersPageOptionsDto } from './dtos/users-page-options.dto.ts';
@@ -71,5 +74,18 @@ export class UserController {
   })
   getUser(@UUIDParam('id') userId: Uuid): Promise<UserDto> {
     return this.userService.getUser(userId);
+  }
+
+  @Post()
+  @Auth([RoleType.SUPER_ADMIN])
+  @HttpCode(HttpStatus.CREATED)
+  async createUser(@Body() createUserDto: UserRegisterDto) {
+    const user = await this.userService.createUser(createUserDto);
+
+    return {
+      id: user.id,
+      email: user.email,
+      message: `User created and password sent to ${user.email}`,
+    };
   }
 }
