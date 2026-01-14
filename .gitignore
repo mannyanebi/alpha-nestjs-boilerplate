@@ -96,3 +96,6 @@ db-data
 
 # metadata.ts
 metadata.ts
+
+#
+.yarn/install-state.gz
