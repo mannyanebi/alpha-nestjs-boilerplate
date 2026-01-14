@@ -1,3 +1,4 @@
+import fs from 'node:fs';
 import path from 'node:path';
 
 import { Injectable } from '@nestjs/common';
@@ -109,6 +110,14 @@ export class ApiConfigService {
       path.join(import.meta.dirname, `../../database/migrations/*{.ts,.js}`),
     ];
 
+    const sslConfig =
+      this.getString('DB_SSL_ENABLED') === 'true'
+        ? {
+            rejectUnauthorized: true,
+            ca: fs.readFileSync('./ca-certificate.crt').toString(),
+          }
+        : false;
+
     return {
       entities,
       migrations,
@@ -123,6 +132,7 @@ export class ApiConfigService {
       migrationsRun: true,
       logging: this.getBoolean('ENABLE_ORM_LOGS'),
       namingStrategy: new SnakeNamingStrategy(),
+      ssl: sslConfig,
     };
   }
 

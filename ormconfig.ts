@@ -1,12 +1,23 @@
 import './src/boilerplate.polyfill';
 
 import dotenv from 'dotenv';
+import fs from 'fs';
 import { DataSource } from 'typeorm';
 
 import { UserSubscriber } from './src/entity-subscribers/user-subscriber';
 import { SnakeNamingStrategy } from './src/snake-naming.strategy';
 
 dotenv.config();
+
+// Debug environment variables
+
+const sslConfig =
+  process.env.DB_SSL_ENABLED === 'true'
+    ? {
+        rejectUnauthorized: true,
+        ca: fs.readFileSync('./ca-certificate.crt').toString(),
+      }
+    : false;
 
 export const dataSource = new DataSource({
   type: 'postgres',
@@ -15,9 +26,7 @@ export const dataSource = new DataSource({
   username: process.env.DB_USERNAME,
   password: process.env.DB_PASSWORD,
   database: process.env.DB_DATABASE,
-  ssl: process.env.DB_SSL_ENABLED === 'true' ? {
-    rejectUnauthorized: process.env.DB_SSL_REJECT_UNAUTHORIZED === 'true',
-  } : false,
+  ssl: sslConfig,
   namingStrategy: new SnakeNamingStrategy(),
   subscribers: [UserSubscriber],
   entities: [
@@ -26,3 +35,5 @@ export const dataSource = new DataSource({
   ],
   migrations: ['src/database/migrations/*{.ts,.js}'],
 });
+
+console.log('🚀 DataSource SSL Config:', dataSource.options.ssl);
