@@ -4,7 +4,8 @@ COPY package.json yarn.lock ./
 
 RUN yarn install
 
-COPY . ./
+COPY tsconfig.json tsconfig.build.json nest-cli.json ./
+COPY src ./src
 
 RUN yarn build:prod
 
@@ -20,14 +21,12 @@ ARG PORT=3000
 
 ENV NODE_ENV=production
 
-RUN mkdir -p /usr/src/app
-
 WORKDIR /usr/src/app
 
-COPY --from=dist /app/dist /usr/src/app/dist
-COPY --from=node_modules /app/node_modules /usr/src/app/node_modules
+COPY --from=dist /app/dist ./dist
+COPY --from=node_modules /app/node_modules ./node_modules
 
-COPY . /usr/src/app
+COPY package.json yarn.lock ./
 
 EXPOSE $PORT
 
