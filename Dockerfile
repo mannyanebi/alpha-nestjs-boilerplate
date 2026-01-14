@@ -1,4 +1,5 @@
-FROM node:lts AS dist
+FROM node:22.18.0 AS dist
+WORKDIR /app
 COPY package.json yarn.lock ./
 
 RUN yarn install
@@ -7,12 +8,13 @@ COPY . ./
 
 RUN yarn build:prod
 
-FROM node:lts AS node_modules
+FROM node:22.18.0 AS node_modules
+WORKDIR /app
 COPY package.json yarn.lock ./
 
 RUN yarn install --prod
 
-FROM node:lts
+FROM node:22.18.0
 
 ARG PORT=3000
 
@@ -22,8 +24,8 @@ RUN mkdir -p /usr/src/app
 
 WORKDIR /usr/src/app
 
-COPY --from=dist dist /usr/src/app/dist
-COPY --from=node_modules node_modules /usr/src/app/node_modules
+COPY --from=dist /app/dist /usr/src/app/dist
+COPY --from=node_modules /app/node_modules /usr/src/app/node_modules
 
 COPY . /usr/src/app
 
