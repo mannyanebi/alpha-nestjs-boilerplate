@@ -6,13 +6,10 @@ import {
   HttpStatus,
   Post,
   Query,
-  // UploadedFile,
   ValidationPipe,
 } from '@nestjs/common';
 import { ApiResponse, ApiTags } from '@nestjs/swagger';
 
-// import type { IFile } from 'interfaces/IFile.ts';
-// import type { Reference } from 'types.ts';
 import { PageDto } from '../../common/dto/page.dto.ts';
 import { ApiPageResponse } from '../../decorators/api-page-response.decorator.ts';
 import { AuthUser } from '../../decorators/auth-user.decorator.ts';
@@ -81,6 +78,7 @@ export class UserController {
 
   @Post('create')
   @Auth([RoleType.SUPER_ADMIN])
+  @HttpCode(HttpStatus.OK)
   @ApiResponse({ type: UserDto, description: 'User successfully created ' })
   async createUser(@Body() createUserDto: CreateUserDto): Promise<UserDto> {
     const user = await this.userService.createUser(createUserDto);

@@ -1,20 +1,24 @@
-import { IsEmail, IsEnum, IsPhoneNumber, IsString } from 'class-validator';
-
+import {
+  EmailField,
+  EnumField,
+  PhoneFieldOptional,
+  StringField,
+} from '../../../decorators/field.decorators.ts';
 import { RoleType } from '../../rbac/constants/roles.constant';
 
 export class CreateUserDto {
-  @IsString()
+  @StringField()
   firstName!: string;
 
-  @IsString()
+  @StringField()
   lastName!: string;
 
-  @IsEmail()
+  @EmailField()
   email!: string;
 
-  @IsPhoneNumber()
+  @PhoneFieldOptional()
   phone!: string;
 
-  @IsEnum(RoleType)
+  @EnumField(() => RoleType)
   role!: RoleType;
 }
