@@ -7,6 +7,8 @@ export function setupSwagger(app: INestApplication): void {
     .setDescription(
       `### REST
 
+**OpenAPI Specification:** [Download JSON](/documentation/openapi.json)
+
 Routes is following REST standard (Richardson level 3)
 
 <details><summary>Detailed specification</summary>
