@@ -1,4 +1,5 @@
 import { Controller, Get } from '@nestjs/common';
+import { ApiTags } from '@nestjs/swagger';
 import type { HealthCheckResult } from '@nestjs/terminus';
 import {
   HealthCheck,
@@ -9,6 +10,7 @@ import {
 import { ServiceHealthIndicator } from './health-indicators/service.indicator.ts';
 
 @Controller('health')
+@ApiTags('health')
 export class HealthCheckerController {
   constructor(
     private healthCheckService: HealthCheckService,
