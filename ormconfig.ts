@@ -8,17 +8,13 @@ import { SnakeNamingStrategy } from './src/snake-naming.strategy';
 
 dotenv.config();
 
-// const sslConfig =
-//   process.env.DB_SSL_ENABLED === 'true'
-//     ? {
-//         rejectUnauthorized: true,
-//         ca: process.env.DB_CA_CERT,
-//       }
-//     : false;
-
-const sslConfig = {
-  rejectUnauthorized: false,
-};
+const sslConfig =
+  process.env.DB_SSL_ENABLED === 'true'
+    ? {
+        rejectUnauthorized: true,
+        ca: process.env.DB_CA_CERT,
+      }
+    : false;
 
 export const dataSource = new DataSource({
   type: 'postgres',
