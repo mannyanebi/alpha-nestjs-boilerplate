@@ -2,6 +2,7 @@ import { ConflictException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { In, Repository } from 'typeorm';
 
+import { UserEntity } from '../user/user.entity.ts';
 import {
   isWildcardPermission,
   requiresOwnership,
@@ -19,7 +20,6 @@ import { RoleEntity } from './entities/role.entity.ts';
 import { RolePermissionEntity } from './entities/role-permission.entity.ts';
 import { PermissionNotFoundException } from './exceptions/permission-not-found.exception.ts';
 import { RoleNotFoundException } from './exceptions/role-not-found.exception.ts';
-import { UserEntity } from '../user/user.entity.ts';
 
 interface IPermissionCheckOptions {
   enforceOwnership?: boolean;
@@ -590,9 +590,10 @@ export class RbacService {
     return resolvedPermissions;
   }
 
-  private resolvePermissionParts(
-    slug: string,
-  ): { resource: string; action: string } {
+  private resolvePermissionParts(slug: string): {
+    resource: string;
+    action: string;
+  } {
     const [resource, ...actionParts] = slug.split('.');
     const action = actionParts.join('.');
 
