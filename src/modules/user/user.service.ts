@@ -12,7 +12,7 @@ import { UserNotFoundException } from '../../exceptions/user-not-found.exception
 import { GeneratorProvider } from '../../providers/generator.provider.ts';
 // import type { IFile } from '../../interfaces/IFile.ts';
 // import { AwsS3Service } from '../../shared/services/aws-s3.service.ts';
-// import type { MailerService } from '../../shared/services/mailer/mailer.service.ts';
+import { MailerService } from '../../shared/services/mailer/mailer.service.ts';
 // import { ValidatorService } from '../../shared/services/validator.service.ts';
 // import type { Reference } from '../../types.ts';
 import { CreateSettingsCommand } from './commands/create-settings.command.ts';
@@ -31,7 +31,7 @@ export class UserService {
     // private validatorService: ValidatorService,
     // private awsS3Service: AwsS3Service,
     private commandBus: CommandBus,
-    //private mailerService: MailerService,
+    private mailerService: MailerService,
   ) {}
 
   /** Find single user */
@@ -55,10 +55,7 @@ export class UserService {
     // }
 
     const plainPassword = GeneratorProvider.generatePassword();
-    console.log(
-      '🚀 ~ UserService ~ createRoleBasedUser ~ plainPassword:',
-      plainPassword,
-    );
+
     user.password = plainPassword;
 
     await this.userRepository.save(user);
@@ -71,12 +68,12 @@ export class UserService {
       }),
     );
 
-    //     // Send welcome email
-    //     await this.mailerService.sendMail({
-    //       to: user.email!,
-    //       subject: 'Test Email',
-    //       text: `Hello ${user.firstName}, your account has been created. Your password is: ${plainPassword}`,
-    //     });
+    // Send welcome email
+    await this.mailerService.sendMail({
+      to: user.email!,
+      subject: 'Test Email',
+      text: `Hello ${user.firstName}, your account has been created. Your password is: ${plainPassword}`,
+    });
     return user;
   }
 
