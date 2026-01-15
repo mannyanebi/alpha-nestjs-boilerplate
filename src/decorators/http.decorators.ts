@@ -21,13 +21,32 @@ import type { PermissionString } from './require-permissions.decorator.ts';
 import { RequirePermissions } from './require-permissions.decorator.ts';
 
 export function Auth(
-  permissions: PermissionString | PermissionString[],
+  permissions?: PermissionString | PermissionString[],
   options?: Partial<{ public: boolean }>,
 ): MethodDecorator {
   const isPublicRoute = options?.public;
 
+  if (isPublicRoute && permissions) {
+    throw new Error(
+      'A route cannot be both public and require authentication/authorization.',
+    );
+  }
+
+  if (permissions) {
+    return applyDecorators(
+      RequirePermissions(permissions),
+      UseGuards(AuthGuard({ public: isPublicRoute }), PermissionsGuard),
+      ApiBearerAuth(),
+      UseInterceptors(AuthUserInterceptor),
+      ApiUnauthorizedResponse({ description: 'Unauthorized' }),
+    );
+  }
+
+  if (isPublicRoute) {
+    return applyDecorators(PublicRoute(true));
+  }
+
   return applyDecorators(
-    RequirePermissions(permissions),
     UseGuards(AuthGuard({ public: isPublicRoute }), PermissionsGuard), // ✅ Uncommented and use PermissionsGuard
     ApiBearerAuth(),
     UseInterceptors(AuthUserInterceptor),

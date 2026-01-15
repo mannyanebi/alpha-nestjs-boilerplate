@@ -5,15 +5,17 @@ import {
   HttpCode,
   HttpStatus,
   Post,
-  Version,
 } from '@nestjs/common';
 import { ApiOkResponse, ApiTags } from '@nestjs/swagger';
 
 import { AuthUser } from '../../decorators/auth-user.decorator.ts';
 import { Auth } from '../../decorators/http.decorators.ts';
+import { ForgotPasswordDto } from '../user/dtos/forgot-password.dto.ts';
+import { ResetPasswordDto } from '../user/dtos/reset-password.dto.ts';
+import { SetPasswordDto } from '../user/dtos/set-password.dto.ts';
 import { UserDto } from '../user/dtos/user.dto.ts';
 import { UserEntity } from '../user/user.entity.ts';
-// import { UserService } from '../user/user.service.ts';
+import { UserService } from '../user/user.service.ts';
 import { AuthService } from './auth.service.ts';
 import { LoginPayloadDto } from './dto/login-payload.dto.ts';
 import { RefreshTokenDto } from './dto/refresh-token.dto.ts';
@@ -24,7 +26,7 @@ import { UserLoginDto } from './dto/user-login.dto.ts';
 @ApiTags('auth')
 export class AuthController {
   constructor(
-    // private userService: UserService,
+    private userService: UserService,
     private authService: AuthService,
   ) {}
 
@@ -82,12 +84,54 @@ export class AuthController {
   //   });
   // }
 
-  @Version('1')
   @Get('me')
   @HttpCode(HttpStatus.OK)
-  @Auth('users.view')
+  @Auth()
   @ApiOkResponse({ type: UserDto, description: 'current user info' })
   getCurrentUser(@AuthUser() user: UserEntity): UserDto {
     return user.toDto();
+  }
+
+  @Post('forgot-password')
+  @Auth(undefined, { public: true })
+  @HttpCode(HttpStatus.OK)
+  @ApiOkResponse({
+    description: 'Password reset OTP sent to email',
+  })
+  async forgotPassword(
+    @Body() forgotPasswordDto: ForgotPasswordDto,
+  ): Promise<{ message: string }> {
+    await this.userService.forgotPassword(forgotPasswordDto.email);
+    return {
+      message:
+        'If the email exists, a password reset code has been sent to it.',
+    };
+  }
+
+  @Post('reset-password')
+  @Auth(undefined, { public: true })
+  @HttpCode(HttpStatus.OK)
+  @ApiOkResponse({
+    description: 'Password successfully reset',
+  })
+  async resetPassword(
+    @Body() resetPasswordDto: ResetPasswordDto,
+  ): Promise<{ message: string }> {
+    await this.userService.resetPassword(resetPasswordDto);
+    return { message: 'Password has been successfully reset.' };
+  }
+
+  @Post('set-password')
+  @Auth()
+  @HttpCode(HttpStatus.OK)
+  @ApiOkResponse({
+    description: 'Password successfully updated',
+  })
+  async setPassword(
+    @AuthUser() user: UserEntity,
+    @Body() setPasswordDto: SetPasswordDto,
+  ): Promise<{ message: string }> {
+    await this.userService.setPassword(user, setPasswordDto);
+    return { message: 'Password has been successfully updated.' };
   }
 }
