@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-use-before-define */
-/* eslint-disable no-console */
 import type { DataSource } from 'typeorm';
 
 import { Permission } from '../constants/permissions.constant.ts';

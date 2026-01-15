@@ -1,8 +1,10 @@
 import {
+  Body,
   Controller,
   Get,
   HttpCode,
   HttpStatus,
+  Post,
   Query,
   ValidationPipe,
 } from '@nestjs/common';
@@ -19,6 +21,7 @@ import {
 import { UseLanguageInterceptor } from '../../interceptors/language-interceptor.service.ts';
 import { TranslationService } from '../../shared/services/translation.service.ts';
 import { RoleType } from '../rbac/constants/roles.constant.ts';
+import { CreateUserDto } from './dtos/create-user.dto.ts';
 import { UserDto } from './dtos/user.dto.ts';
 import { UsersPageOptionsDto } from './dtos/users-page-options.dto.ts';
 import { UserEntity } from './user.entity.ts';
@@ -71,5 +74,15 @@ export class UserController {
   })
   getUser(@UUIDParam('id') userId: Uuid): Promise<UserDto> {
     return this.userService.getUser(userId);
+  }
+
+  @Post('create')
+  @Auth([RoleType.SUPER_ADMIN])
+  @HttpCode(HttpStatus.OK)
+  @ApiResponse({ type: UserDto, description: 'User successfully created ' })
+  async createUser(@Body() createUserDto: CreateUserDto): Promise<UserDto> {
+    const user = await this.userService.createUser(createUserDto);
+
+    return user.toDto();
   }
 }
