@@ -142,7 +142,11 @@ export class ApiConfigService {
       ),
       apiToken: this.getString('MAILER_API_TOKEN'),
       fromEmail: this.getString('MAILER_FROM_EMAIL'),
-      fromName: this.getString('MAILER_FROM_NAME', 'prosev'),
+      fromName: this.getString('MAILER_FROM_NAME', 'Prosev'),
+      supportEmail: this.getString(
+        'SUPPORT_EMAIL',
+        this.getString('MAILER_FROM_EMAIL'),
+      ),
     };
   }
 
@@ -172,6 +176,8 @@ export class ApiConfigService {
   get appConfig() {
     return {
       port: this.getString('PORT'),
+      name: this.getString('APP_NAME', 'Croptera'),
+      loginUrl: this.getString('APP_LOGIN_URL', 'http://localhost:3000/login'),
     };
   }
 

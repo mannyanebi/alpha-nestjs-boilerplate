@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { CommandBus } from '@nestjs/cqrs';
 import { InjectRepository } from '@nestjs/typeorm';
 import { plainToClass } from 'class-transformer';
+import Mailgen from 'mailgen';
 import type { FindOptionsWhere } from 'typeorm';
 import { Repository } from 'typeorm';
 import { Transactional } from 'typeorm-transactional';
@@ -12,6 +13,7 @@ import { UserNotFoundException } from '../../exceptions/user-not-found.exception
 import { GeneratorProvider } from '../../providers/generator.provider.ts';
 // import type { IFile } from '../../interfaces/IFile.ts';
 // import { AwsS3Service } from '../../shared/services/aws-s3.service.ts';
+import { ApiConfigService } from '../../shared/services/api-config.service.ts';
 import { MailerService } from '../../shared/services/mailer/mailer.service.ts';
 // import { ValidatorService } from '../../shared/services/validator.service.ts';
 // import type { Reference } from '../../types.ts';
@@ -25,6 +27,8 @@ import type { UserSettingsEntity } from './user-settings.entity.ts';
 
 @Injectable()
 export class UserService {
+  private readonly mailGenerator: Mailgen;
+
   constructor(
     @InjectRepository(UserEntity)
     private userRepository: Repository<UserEntity>,
@@ -32,7 +36,17 @@ export class UserService {
     // private awsS3Service: AwsS3Service,
     private commandBus: CommandBus,
     private mailerService: MailerService,
-  ) {}
+    private configService: ApiConfigService,
+  ) {
+    const appConfig = this.configService.appConfig;
+    this.mailGenerator = new Mailgen({
+      theme: 'default',
+      product: {
+        name: appConfig.name,
+        link: appConfig.loginUrl,
+      },
+    });
+  }
 
   /** Find single user */
   findOne(findData: FindOptionsWhere<UserEntity>): Promise<UserEntity | null> {
@@ -69,11 +83,7 @@ export class UserService {
     );
 
     // Send welcome email
-    await this.mailerService.sendMail({
-      to: user.email!,
-      subject: 'Test Email',
-      text: `Hello ${user.firstName}, your account has been created. Your password is: ${plainPassword}`,
-    });
+    await this.sendWelcomeEmail(user, plainPassword);
     return user;
   }
 
@@ -106,5 +116,65 @@ export class UserService {
     return this.commandBus.execute<CreateSettingsCommand, UserSettingsEntity>(
       new CreateSettingsCommand(userId, createSettingsDto),
     );
+  }
+
+  private async sendWelcomeEmail(
+    user: UserEntity,
+    password: string,
+  ): Promise<void> {
+    const appConfig = this.configService.appConfig;
+    const mailerConfig = this.configService.mailerConfig;
+    const userName = user.firstName || 'there';
+
+    const email = {
+      body: {
+        name: userName,
+        intro: `Welcome to ${appConfig.name}! Your account has been successfully created.`,
+        table: {
+          data: [
+            {
+              item: 'Email',
+              description: user.email,
+            },
+            {
+              item: 'Password',
+              description: password,
+            },
+          ],
+          columns: {
+            customWidth: {
+              item: '25%',
+              description: '75%',
+            },
+          },
+        },
+        action: {
+          instructions:
+            'Use the credentials above to sign in. Click the button below to access your account:',
+          button: {
+            color: '#1f2937',
+            text: `Sign in to ${appConfig.name}`,
+            link: appConfig.loginUrl,
+          },
+        },
+        outro: [
+          'This is your current password. For security reasons, we recommend changing it after your first login.',
+          'You can update your password at any time from your account settings.',
+          mailerConfig.supportEmail
+            ? `If you need any assistance, feel free to reach out to us at ${mailerConfig.supportEmail}.`
+            : 'If you need any assistance, feel free to reply to this email.',
+        ],
+      },
+    };
+
+    const html = this.mailGenerator.generate(email);
+    const text = this.mailGenerator.generatePlaintext(email);
+
+    await this.mailerService.sendMail({
+      to: user.email!,
+      subject: `Welcome to ${appConfig.name}`,
+      html,
+      text,
+    });
   }
 }
