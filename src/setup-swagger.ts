@@ -58,6 +58,25 @@ Routes is following REST standard (Richardson level 3)
   SwaggerModule.setup('documentation', app, document, {
     swaggerOptions: {
       persistAuthorization: true,
+      tagsSorter: (a: string, b: string) => {
+        const order = ['health', 'auth', 'rbac-roles', 'rbac-permissions'];
+        const indexA = order.indexOf(a);
+        const indexB = order.indexOf(b);
+
+        if (indexA === -1 && indexB === -1) {
+          return a.localeCompare(b);
+        }
+
+        if (indexA === -1) {
+          return 1;
+        }
+
+        if (indexB === -1) {
+          return -1;
+        }
+
+        return indexA - indexB;
+      },
     },
   });
 
