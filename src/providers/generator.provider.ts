@@ -1,4 +1,3 @@
-/* eslint-disable sonarjs/pseudo-random */
 import { v1 as uuid } from 'uuid';
 
 export class GeneratorProvider {
@@ -39,19 +38,32 @@ export class GeneratorProvider {
   }
 
   static generatePassword(): string {
-    const lowercase = 'abcdefghijklmnopqrstuvwxyz';
-    const uppercase = lowercase.toUpperCase();
-    const numbers = '0123456789';
+    const words = [
+      'happy',
+      'bright',
+      'swift',
+      'calm',
+      'bold',
+      'tiger',
+      'eagle',
+      'river',
+      'mountain',
+      'ocean',
+    ];
 
-    let text = '';
+    const word1 = words[Math.floor(Math.random() * words.length)];
+    const word2 = words[Math.floor(Math.random() * words.length)];
+    const number = Math.floor(Math.random() * 99) + 10;
 
-    for (let i = 0; i < 4; i++) {
-      text += uppercase.charAt(Math.floor(Math.random() * uppercase.length));
-      text += lowercase.charAt(Math.floor(Math.random() * lowercase.length));
-      text += numbers.charAt(Math.floor(Math.random() * numbers.length));
-    }
+    // Capitalize first letter
+    const password =
+      word1.charAt(0).toUpperCase() +
+      word1.slice(1) +
+      word2.charAt(0).toUpperCase() +
+      word2.slice(1) +
+      number;
 
-    return text;
+    return password;
   }
 
   /**

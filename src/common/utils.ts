@@ -26,6 +26,7 @@ export function validateHash(
   return bcrypt.compare(password, hash);
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unnecessary-type-parameters
 export function getVariableName<TResult>(
   getVar: () => TResult,
 ): string | undefined {
