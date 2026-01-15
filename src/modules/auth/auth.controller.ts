@@ -11,7 +11,6 @@ import { ApiOkResponse, ApiTags } from '@nestjs/swagger';
 
 import { AuthUser } from '../../decorators/auth-user.decorator.ts';
 import { Auth } from '../../decorators/http.decorators.ts';
-import { RoleType } from '../rbac/constants/roles.constant.ts';
 import { UserDto } from '../user/dtos/user.dto.ts';
 import { UserEntity } from '../user/user.entity.ts';
 // import { UserService } from '../user/user.service.ts';
@@ -86,12 +85,7 @@ export class AuthController {
   @Version('1')
   @Get('me')
   @HttpCode(HttpStatus.OK)
-  @Auth([
-    RoleType.AGRONOMIST,
-    RoleType.MEAL,
-    RoleType.SENIOR_AGRONOMIST,
-    RoleType.SUPER_ADMIN,
-  ])
+  @Auth('users.view')
   @ApiOkResponse({ type: UserDto, description: 'current user info' })
   getCurrentUser(@AuthUser() user: UserEntity): UserDto {
     return user.toDto();

@@ -19,13 +19,8 @@ import {
 import type { PageDto } from '../../common/dto/page.dto.ts';
 import { ApiPageResponse } from '../../decorators/api-page-response.decorator.ts';
 import { AuthUser } from '../../decorators/auth-user.decorator.ts';
-import {
-  ApiUUIDParam,
-  Auth,
-  UUIDParam,
-} from '../../decorators/http.decorators.ts';
+import { ApiUUIDParam, UUIDParam } from '../../decorators/http.decorators.ts';
 import { UseLanguageInterceptor } from '../../interceptors/language-interceptor.service.ts';
-import { RoleType } from '../rbac/constants/roles.constant.ts';
 import { UserEntity } from '../user/user.entity.ts';
 import { CreatePostDto } from './dtos/create-post.dto.ts';
 import { PostDto } from './dtos/post.dto.ts';
@@ -39,7 +34,6 @@ export class PostController {
   constructor(private postService: PostService) {}
 
   @Post()
-  @Auth([RoleType.SENIOR_AGRONOMIST])
   @HttpCode(HttpStatus.CREATED)
   @ApiCreatedResponse({ type: PostDto })
   async createPost(
@@ -55,7 +49,6 @@ export class PostController {
   }
 
   @Get()
-  @Auth([RoleType.AGRONOMIST])
   @UseLanguageInterceptor()
   @ApiPageResponse({ type: PostDto })
   async getPosts(
@@ -65,7 +58,6 @@ export class PostController {
   }
 
   @Get(':id')
-  @Auth([])
   @HttpCode(HttpStatus.OK)
   @ApiUUIDParam('id')
   @ApiOkResponse({ type: PostDto })

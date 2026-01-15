@@ -12,23 +12,23 @@ import {
   ApiParam,
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
-import type { RoleType } from 'modules/rbac/constants/roles.constant.ts';
 
 import { AuthGuard } from '../guards/auth.guard.ts';
-import { RolesGuard } from '../guards/roles.guard.ts';
+import { PermissionsGuard } from '../guards/permissions.guard.ts';
 import { AuthUserInterceptor } from '../interceptors/auth-user-interceptor.service.ts';
 import { PublicRoute } from './public-route.decorator.ts';
-import { Roles } from './roles.decorator.ts';
+import type { PermissionString } from './require-permissions.decorator.ts';
+import { RequirePermissions } from './require-permissions.decorator.ts';
 
 export function Auth(
-  roles: RoleType[] = [],
+  permissions: PermissionString | PermissionString[],
   options?: Partial<{ public: boolean }>,
 ): MethodDecorator {
   const isPublicRoute = options?.public;
 
   return applyDecorators(
-    Roles(roles),
-    UseGuards(AuthGuard({ public: isPublicRoute }), RolesGuard),
+    RequirePermissions(permissions),
+    UseGuards(AuthGuard({ public: isPublicRoute }), PermissionsGuard), // ✅ Uncommented and use PermissionsGuard
     ApiBearerAuth(),
     UseInterceptors(AuthUserInterceptor),
     ApiUnauthorizedResponse({ description: 'Unauthorized' }),

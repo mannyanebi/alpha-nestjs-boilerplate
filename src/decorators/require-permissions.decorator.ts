@@ -1,5 +1,7 @@
 import { SetMetadata } from '@nestjs/common';
 
+import type { Permission } from '../modules/rbac/constants/permissions.constant';
+
 export interface IRequirePermissionsOptions {
   /**
    * Check if user owns the resource (for .own permissions)
@@ -27,6 +29,8 @@ export interface IPermissionMetadata {
 
 export const PERMISSIONS_KEY = 'permissions';
 
+export type PermissionString = `${Permission}`;
+
 /**
  * Decorator to require specific permissions for accessing a route
  *
@@ -47,7 +51,7 @@ export const PERMISSIONS_KEY = 'permissions';
  * @RequirePermissions('readings.view.own', { autoScope: true })
  */
 export function RequirePermissions(
-  permissions: string | string[],
+  permissions: PermissionString | PermissionString[],
   options: IRequirePermissionsOptions = {},
 ): MethodDecorator {
   const permissionArray = Array.isArray(permissions)
