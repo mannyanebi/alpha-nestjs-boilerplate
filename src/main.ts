@@ -1,4 +1,3 @@
-/* eslint-disable unicorn/prefer-top-level-await */
 import './boilerplate.polyfill';
 
 import {
