@@ -33,38 +33,13 @@
     "noFallthroughCasesInSwitch": true,
     "allowUnreachableCode": false,
 
-    // Path aliases - eliminates ../../ imports
-    "baseUrl": "./src",
-    "paths": {
-      "@/*": ["./*"],
-      "@common/*": ["./common/*"],
-      "@constants/*": ["./constants/*"],
-      "@database/*": ["./database/*"],
-      "@decorators/*": ["./decorators/*"],
-      "@entity-subscribers/*": ["./entity-subscribers/*"],
-      "@exceptions/*": ["./exceptions/*"],
-      "@filters/*": ["./filters/*"],
-      "@guards/*": ["./guards/*"],
-      "@interceptors/*": ["./interceptors/*"],
-      "@interfaces/*": ["./interfaces/*"],
-      "@modules/*": ["./modules/*"],
-      "@providers/*": ["./providers/*"],
-      "@shared/*": ["./shared/*"],
-      "@types/*": ["./types/*"],
-      "@validators/*": ["./validators/*"]
-    }
+    "baseUrl": "./src"
   },
   "ts-node": {
     "experimentalSpecifierResolution": "node",
     "transpileOnly": true,
     "esm": true
   },
-  "include": [
-    "src/**/*",
-    "scripts/**/*"
-  ],
-  "exclude": [
-    "node_modules",
-    "**/*.spec.ts"
-  ]
+  "include": ["src/**/*", "scripts/**/*"],
+  "exclude": ["node_modules", "**/*.spec.ts"]
 }
