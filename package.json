@@ -1,13 +1,14 @@
 {
-  "name": "awesome-nestjs-boilerplate",
+  "name": "croptera-backend",
   "version": "11.0.0",
-  "description": "Awesome NestJS Boilerplate, Typescript, Postgres, TypeORM",
+  "description": "A Typescript, Postgres, TypeORM backend for Croptera application built with NestJS framework.",
   "author": "Narek Hakobyan <narek.hakobyan.07@gmail.com>",
   "private": true,
   "license": "MIT",
   "type": "module",
   "engines": {
-    "node": ">=22.0.0"
+    "node": "22.18.0",
+    "yarn": ">=4.9.2"
   },
   "scripts": {
     "build:prod": "nest build",

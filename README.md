@@ -343,12 +343,6 @@ When `ENABLE_DOCUMENTATION=true`, Swagger UI is available at:
 
 This project is licensed under the MIT License.
 
-## 👥 Author
-
-**Narek Hakobyan** - [narek.hakobyan.07@gmail.com](mailto:narek.hakobyan.07@gmail.com)
-
-**Emmanuel Anebi** - [anebiemmanuel@gmail.com](mailto:anebiemmanuel@gmail.com)
-
 ---
 
 Built with ❤️ using [NestJS](https://nestjs.com/)
