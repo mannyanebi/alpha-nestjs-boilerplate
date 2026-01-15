@@ -1,48 +1,64 @@
 {
   "compilerOptions": {
+    // Module settings
     "module": "ESNext",
     "lib": ["ESNext"],
     "moduleResolution": "Node",
+    "target": "ESNext",
+
+    // Emit settings
     "declaration": true,
-    "noImplicitAny": true,
     "removeComments": true,
+    "noEmit": true,
+    "sourceMap": true,
+    "outDir": "./dist",
+    "incremental": true,
+
+    // Module resolution
     "skipLibCheck": true,
     "allowImportingTsExtensions": true,
-    "noEmit": true,
-    "importHelpers": true,
     "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "forceConsistentCasingInFileNames": true,
+
+    // NestJS decorators
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
-    "resolveJsonModule": true,
-    "esModuleInterop": true,
-    "verbatimModuleSyntax": true,
-    "useDefineForClassFields": true,
-    "allowUnreachableCode": false,
-    "forceConsistentCasingInFileNames": true,
-    "noImplicitReturns": true,
-    "isolatedModules": true,
-//    "exactOptionalPropertyTypes": true,
-    "noImplicitThis": true,
-//    "noPropertyAccessFromIndexSignature": true,
-    "noUnusedParameters": true,
-    "noUnusedLocals": true,
-    "strictPropertyInitialization": true,
-    "target": "ESNext",
+
+    // Type checking - relaxed for better DX
+    "noImplicitAny": true,
+    "strictNullChecks": true,
     "noFallthroughCasesInSwitch": true,
-    "sourceMap": true,
-    "noEmitHelpers": true,
-    "noUncheckedIndexedAccess": true,
-    "outDir": "./dist",
+    "allowUnreachableCode": false,
+
+    // Path aliases - eliminates ../../ imports
     "baseUrl": "./src",
-    "incremental": true,
-    "strict": true,
-    "strictNullChecks": true
+    "paths": {
+      "@/*": ["./*"],
+      "@common/*": ["./common/*"],
+      "@constants/*": ["./constants/*"],
+      "@database/*": ["./database/*"],
+      "@decorators/*": ["./decorators/*"],
+      "@entity-subscribers/*": ["./entity-subscribers/*"],
+      "@exceptions/*": ["./exceptions/*"],
+      "@filters/*": ["./filters/*"],
+      "@guards/*": ["./guards/*"],
+      "@interceptors/*": ["./interceptors/*"],
+      "@interfaces/*": ["./interfaces/*"],
+      "@modules/*": ["./modules/*"],
+      "@providers/*": ["./providers/*"],
+      "@shared/*": ["./shared/*"],
+      "@types/*": ["./types/*"],
+      "@validators/*": ["./validators/*"]
+    }
   },
   "ts-node": {
     "experimentalSpecifierResolution": "node",
     "transpileOnly": true,
-    "esm": true,
-},
+    "esm": true
+  },
   "include": [
     "src/**/*",
     "scripts/**/*"
