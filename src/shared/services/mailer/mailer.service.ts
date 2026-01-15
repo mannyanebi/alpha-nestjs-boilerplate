@@ -1,23 +1,7 @@
-
-/* eslint-disable @typescript-eslint/no-unnecessary-condition */
-/* eslint-disable @typescript-eslint/consistent-type-imports */
-/* eslint-disable @typescript-eslint/no-unused-vars */
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
-/* eslint-disable @typescript-eslint/no-unsafe-call */
-/* eslint-disable unicorn/no-array-reduce */
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
-import { Injectable } from '@nestjs/common';
-import type { SendMailOptions, Transporter } from 'nodemailer';
-import * as nodemailer from 'nodemailer';
-import type SMTPTransport from 'nodemailer/lib/smtp-transport';
-
-import { ApiConfigService } from '../api-config.service.js';
-import { buildWelcomeEmailTemplate } from './templates/welcome-email.template.js';
 import { Injectable, Logger } from '@nestjs/common';
 import { SendMailClient } from 'zeptomail';
 
 import { ApiConfigService } from '../api-config.service.ts';
-
 
 interface IZeptoHeadersOptions {
   fileCacheKey?: string | string[];
@@ -49,11 +33,6 @@ interface ISendOptions {
   zepto?: IZeptoHeadersOptions;
 }
 
-
-type IHeaderValue = string | string[] | { prepared: boolean; value: string };
-type NodemailerModule = typeof import('nodemailer');
-
-
 @Injectable()
 export class MailerService {
   private readonly client: SendMailClient;
@@ -74,15 +53,6 @@ export class MailerService {
       address: config.fromEmail,
       name: config.fromName,
     };
-
-    const nodemailerClient = nodemailer;
-
-    this.transporter = nodemailerClient.createTransport(transportOptions);
-
-    this.defaultFrom = config.fromName
-      ? `"${config.fromName}" <${config.fromEmail}>`
-      : config.fromEmail;
-
   }
 
   async sendMail(options: ISendOptions): Promise<void> {
@@ -153,12 +123,13 @@ export class MailerService {
     }
 
     if (Array.isArray(headers)) {
-      return headers.reduce<Record<string, string>>((acc, header) => {
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-        acc[header.key] = header.value;
+      const normalized: Record<string, string> = {};
 
-        return acc;
-      }, {});
+      for (const header of headers) {
+        normalized[header.key] = header.value;
+      }
+
+      return normalized;
     }
 
     const normalized: Record<string, string> = {};
@@ -169,7 +140,7 @@ export class MailerService {
         normalized[key] = value;
       } else if (Array.isArray(value)) {
         normalized[key] = value.join(',');
-      } else if (value && typeof value === 'object' && 'value' in value) {
+      } else if (typeof value === 'object' && 'value' in value) {
         normalized[key] = value.value;
       }
     }

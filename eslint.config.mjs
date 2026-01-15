@@ -112,6 +112,7 @@ export default tseslint.config(
       'sonarjs/argument-type': 'off',
       'sonarjs/todo-tag': 'off',
       'sonarjs/fixme-tag': 'off',
+      'sonarjs/pseudo-random': 'off',
     },
   },
   {

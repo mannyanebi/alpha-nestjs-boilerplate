@@ -1,10 +1,4 @@
-import {
-  IsEmail,
-  IsEnum,
-  IsOptional,
-  IsString,
-  MinLength,
-} from 'class-validator';
+import { IsEmail, IsEnum, IsPhoneNumber, IsString } from 'class-validator';
 
 import { RoleType } from '../../rbac/constants/roles.constant';
 
@@ -18,14 +12,8 @@ export class CreateUserDto {
   @IsEmail()
   email!: string;
 
-  @IsOptional()
-  @IsString()
-  username?: string;
-
-  @IsOptional()
-  @IsString()
-  @MinLength(6)
-  password?: string;
+  @IsPhoneNumber()
+  phone!: string;
 
   @IsEnum(RoleType)
   role!: RoleType;
