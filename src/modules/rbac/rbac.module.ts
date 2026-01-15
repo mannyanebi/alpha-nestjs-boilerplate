@@ -8,7 +8,6 @@ import { RoleEntity } from './entities/role.entity.ts';
 import { RolePermissionEntity } from './entities/role-permission.entity.ts';
 import { RbacRoleController } from './rbac.controller.ts';
 import { RbacService } from './rbac.service.ts';
-import { RbacPermissionsController } from './rbac-permissions.controller.ts';
 
 @Global()
 @Module({
@@ -20,7 +19,7 @@ import { RbacPermissionsController } from './rbac-permissions.controller.ts';
       UserEntity,
     ]),
   ],
-  controllers: [RbacRoleController, RbacPermissionsController],
+  controllers: [RbacRoleController],
   providers: [RbacService, PermissionsGuard],
   exports: [RbacService, PermissionsGuard],
 })

@@ -25,7 +25,6 @@ import {
   EntityType,
 } from '../audit/constants/audit-actions.constant.ts';
 import { AuditLog } from '../audit/decorators/audit-log.decorator.ts';
-import { RoleType } from './constants/roles.constant.ts';
 import { AssignPermissionsDto } from './dtos/assign-permissions.dto.ts';
 import { CreateRoleDto } from './dtos/create-role.dto.ts';
 import { RoleDto } from './dtos/role.dto.ts';
@@ -40,7 +39,7 @@ export class RbacRoleController {
   constructor(private readonly rbacService: RbacService) {}
 
   @Post()
-  @Auth([RoleType.SUPER_ADMIN])
+  @Auth('system.config')
   @HttpCode(HttpStatus.CREATED)
   @ApiCreatedResponse({ type: RoleDetailsDto })
   @ApiOperation({ summary: 'Create a new role with optional permissions' })
@@ -49,16 +48,22 @@ export class RbacRoleController {
     entityType: EntityType.ROLE,
     entityIdParam: 'name',
     captureBody: true,
+    message: 'New role created',
   })
   createRole(@Body() createRoleDto: CreateRoleDto): Promise<RoleDetailsDto> {
     return this.rbacService.createRole(createRoleDto);
   }
 
   @Get()
-  @Auth([RoleType.SUPER_ADMIN])
+  @Auth('system.config')
   @HttpCode(HttpStatus.OK)
   @ApiOkResponse({ type: RoleDto, isArray: true })
   @ApiOperation({ summary: 'List all roles' })
+  @AuditLog({
+    action: AuditAction.ROLE_LISTED,
+    entityType: EntityType.ROLE,
+    message: 'Roles fetched',
+  })
   async getRoles(): Promise<RoleDto[]> {
     const roles = await this.rbacService.getRoles();
 
@@ -66,7 +71,7 @@ export class RbacRoleController {
   }
 
   @Get('summary')
-  @Auth([RoleType.SUPER_ADMIN])
+  @Auth('system.config')
   @HttpCode(HttpStatus.OK)
   @ApiOkResponse({ type: RoleSummaryDto, isArray: true })
   @ApiOperation({
@@ -82,7 +87,7 @@ export class RbacRoleController {
   }
 
   @Get(':id')
-  @Auth([RoleType.SUPER_ADMIN])
+  @Auth('system.config')
   @HttpCode(HttpStatus.OK)
   @ApiUUIDParam('id')
   @ApiOkResponse({ type: RoleDetailsDto })
@@ -92,7 +97,7 @@ export class RbacRoleController {
   }
 
   @Patch(':id')
-  @Auth([RoleType.SUPER_ADMIN])
+  @Auth('system.config')
   @HttpCode(HttpStatus.OK)
   @ApiUUIDParam('id')
   @ApiOkResponse({ type: RoleDetailsDto })
@@ -102,6 +107,7 @@ export class RbacRoleController {
     entityType: EntityType.ROLE,
     entityIdParam: 'id',
     captureBody: true,
+    message: 'Role updated',
   })
   updateRole(
     @UUIDParam('id') roleId: Uuid,
@@ -111,7 +117,7 @@ export class RbacRoleController {
   }
 
   @Post(':id/permissions')
-  @Auth([RoleType.SUPER_ADMIN])
+  @Auth('system.config')
   @HttpCode(HttpStatus.OK)
   @ApiUUIDParam('id')
   @ApiOkResponse({ type: RoleDetailsDto })
@@ -121,6 +127,7 @@ export class RbacRoleController {
     entityType: EntityType.ROLE,
     entityIdParam: 'id',
     captureBody: true,
+    message: 'Permissions assigned to role',
   })
   assignPermissions(
     @UUIDParam('id') roleId: Uuid,
@@ -130,7 +137,7 @@ export class RbacRoleController {
   }
 
   @Delete(':id/permissions/:permissionId')
-  @Auth([RoleType.SUPER_ADMIN])
+  @Auth('system.config')
   @HttpCode(HttpStatus.OK)
   @ApiUUIDParam('id')
   @ApiUUIDParam('permissionId')
@@ -140,6 +147,7 @@ export class RbacRoleController {
     action: AuditAction.PERMISSION_REVOKED,
     entityType: EntityType.ROLE,
     entityIdParam: 'id',
+    message: 'Permission revoked from role',
   })
   removePermission(
     @UUIDParam('id') roleId: Uuid,
@@ -149,7 +157,7 @@ export class RbacRoleController {
   }
 
   @Delete(':id')
-  @Auth([RoleType.SUPER_ADMIN])
+  @Auth('system.config')
   @HttpCode(HttpStatus.OK)
   @ApiUUIDParam('id')
   @ApiOperation({ summary: 'Delete a role' })
@@ -157,6 +165,7 @@ export class RbacRoleController {
     action: AuditAction.ROLE_DELETED,
     entityType: EntityType.ROLE,
     entityIdParam: 'id',
+    message: 'Role deleted',
   })
   async deleteRole(@UUIDParam('id') roleId: Uuid): Promise<void> {
     await this.rbacService.deleteRole(roleId);

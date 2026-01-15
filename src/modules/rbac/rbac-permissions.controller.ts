@@ -1,3 +1,8 @@
+// NOTE: There's no need for permissions controller,
+// based on the system's functional requirements.
+
+// RESCINDED CODE.
+
 import {
   Body,
   Controller,
@@ -15,14 +20,12 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 
+import { ApiUUIDParam, UUIDParam } from '../../decorators/http.decorators.ts';
 import {
-  ApiUUIDParam,
-  Auth,
-  UUIDParam,
-} from '../../decorators/http.decorators.ts';
-import { AuditAction, EntityType } from '../audit/constants/audit-actions.constant.ts';
+  AuditAction,
+  EntityType,
+} from '../audit/constants/audit-actions.constant.ts';
 import { AuditLog } from '../audit/decorators/audit-log.decorator.ts';
-import { RoleType } from './constants/roles.constant.ts';
 import { CreatePermissionDto } from './dtos/create-permission.dto.ts';
 import { PermissionDto } from './dtos/permission.dto.ts';
 import { UpdatePermissionDto } from './dtos/update-permission.dto.ts';
@@ -34,7 +37,6 @@ export class RbacPermissionsController {
   constructor(private readonly rbacService: RbacService) {}
 
   @Post()
-  @Auth([RoleType.SUPER_ADMIN])
   @HttpCode(HttpStatus.CREATED)
   @ApiCreatedResponse({ type: PermissionDto })
   @ApiOperation({ summary: 'Create a new permission' })
@@ -47,15 +49,13 @@ export class RbacPermissionsController {
   async createPermission(
     @Body() createPermissionDto: CreatePermissionDto,
   ): Promise<PermissionDto> {
-    const permission = await this.rbacService.createPermission(
-      createPermissionDto,
-    );
+    const permission =
+      await this.rbacService.createPermission(createPermissionDto);
 
     return permission.toDto();
   }
 
   @Get()
-  @Auth([RoleType.SUPER_ADMIN])
   @HttpCode(HttpStatus.OK)
   @ApiOkResponse({ type: PermissionDto, isArray: true })
   @ApiOperation({ summary: 'List all permissions' })
@@ -66,7 +66,6 @@ export class RbacPermissionsController {
   }
 
   @Get(':id')
-  @Auth([RoleType.SUPER_ADMIN])
   @HttpCode(HttpStatus.OK)
   @ApiUUIDParam('id')
   @ApiOkResponse({ type: PermissionDto })
@@ -74,13 +73,13 @@ export class RbacPermissionsController {
   async getPermission(
     @UUIDParam('id') permissionId: Uuid,
   ): Promise<PermissionDto> {
-    const permission = await this.rbacService.getPermissionDetails(permissionId);
+    const permission =
+      await this.rbacService.getPermissionDetails(permissionId);
 
     return permission.toDto();
   }
 
   @Patch(':id')
-  @Auth([RoleType.SUPER_ADMIN])
   @HttpCode(HttpStatus.OK)
   @ApiUUIDParam('id')
   @ApiOkResponse({ type: PermissionDto })
@@ -104,7 +103,6 @@ export class RbacPermissionsController {
   }
 
   @Delete(':id')
-  @Auth([RoleType.SUPER_ADMIN])
   @HttpCode(HttpStatus.OK)
   @ApiUUIDParam('id')
   @ApiOperation({ summary: 'Delete a permission' })
