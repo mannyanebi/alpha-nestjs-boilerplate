@@ -71,6 +71,7 @@ export class UserService {
     const plainPassword = GeneratorProvider.generatePassword();
 
     user.password = plainPassword;
+    user.hasSetPassword = false;
 
     await this.userRepository.save(user);
 

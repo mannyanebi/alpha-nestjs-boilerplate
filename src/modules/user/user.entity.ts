@@ -1,8 +1,7 @@
-import { Column, Entity, OneToMany, OneToOne, VirtualColumn } from 'typeorm';
+import { Column, Entity, OneToOne, VirtualColumn } from 'typeorm';
 
 import { AbstractEntity } from '../../common/abstract.entity.ts';
 import { UseDto } from '../../decorators/use-dto.decorator.ts';
-import { PostEntity } from '../post/post.entity.ts';
 import { RoleType } from '../rbac/constants/roles.constant.ts';
 import type { UserDtoOptions } from './dtos/user.dto.ts';
 import { UserDto } from './dtos/user.dto.ts';
@@ -30,6 +29,9 @@ export class UserEntity extends AbstractEntity<UserDto, UserDtoOptions> {
   @Column({ nullable: true, type: 'varchar' })
   password!: string | null;
 
+  @Column({ type: 'boolean', default: false })
+  hasSetPassword!: boolean;
+
   @Column({ nullable: true, type: 'varchar' })
   phone!: string | null;
 
@@ -44,7 +46,4 @@ export class UserEntity extends AbstractEntity<UserDto, UserDtoOptions> {
 
   @OneToOne(() => UserSettingsEntity, (userSettings) => userSettings.user)
   settings?: UserSettingsEntity;
-
-  @OneToMany(() => PostEntity, (postEntity) => postEntity.user)
-  posts?: PostEntity[];
 }
