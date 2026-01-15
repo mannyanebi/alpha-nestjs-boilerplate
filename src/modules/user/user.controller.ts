@@ -20,6 +20,11 @@ import {
 } from '../../decorators/http.decorators.ts';
 import { UseLanguageInterceptor } from '../../interceptors/language-interceptor.service.ts';
 import { TranslationService } from '../../shared/services/translation.service.ts';
+import {
+  AuditAction,
+  EntityType,
+} from '../audit/constants/audit-actions.constant.ts';
+import { AuditLog } from '../audit/decorators/audit-log.decorator.ts';
 import { CreateUserDto } from './dtos/create-user.dto.ts';
 import { UserDto } from './dtos/user.dto.ts';
 import { UsersPageOptionsDto } from './dtos/users-page-options.dto.ts';
@@ -79,6 +84,12 @@ export class UserController {
   @Auth('users.create.staff')
   @HttpCode(HttpStatus.OK)
   @ApiResponse({ type: UserDto, description: 'User successfully created ' })
+  @AuditLog({
+    action: AuditAction.USER_CREATED,
+    entityType: EntityType.USER,
+    captureBody: true,
+    message: 'A new user has been created',
+  })
   async createUser(@Body() createUserDto: CreateUserDto): Promise<UserDto> {
     const user = await this.userService.createUser(createUserDto);
 
