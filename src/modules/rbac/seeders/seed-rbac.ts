@@ -16,6 +16,8 @@ import { RolePermissionEntity } from '../entities/role-permission.entity.ts';
  */
 const ROLE_PERMISSIONS_MATRIX: Record<RoleType, Permission[]> = {
   [RoleType.AGRONOMIST]: [
+    // User
+    Permission.USERS_VIEW_OWN,
     // Master Data
     Permission.MASTER_DATA_VIEW,
     // Fields
@@ -43,6 +45,7 @@ const ROLE_PERMISSIONS_MATRIX: Record<RoleType, Permission[]> = {
     Permission.ANALYTICS_VIEW_BASIC,
     // Additional permissions
     Permission.USERS_VIEW,
+    Permission.USERS_VIEW_OWN,
     Permission.USERS_CREATE_STAFF,
     Permission.USERS_MANAGE_STAFF,
     Permission.FIELDS_CREATE,
@@ -70,6 +73,7 @@ const ROLE_PERMISSIONS_MATRIX: Record<RoleType, Permission[]> = {
     Permission.READINGS_EDIT_OWN,
     Permission.ANALYTICS_VIEW_BASIC,
     Permission.USERS_VIEW,
+    Permission.USERS_VIEW_OWN,
     Permission.USERS_CREATE_STAFF,
     Permission.USERS_MANAGE_STAFF,
     Permission.FIELDS_CREATE,

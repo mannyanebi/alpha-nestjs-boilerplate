@@ -1,10 +1,10 @@
 import { Global, Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
+import { PermissionsGuard } from '../../guards/permissions.guard.ts';
 import { PermissionEntity } from './entities/permission.entity.ts';
-import { RolePermissionEntity } from './entities/role-permission.entity.ts';
 import { RoleEntity } from './entities/role.entity.ts';
-import { PermissionsGuard } from './guards/permissions.guard.ts';
+import { RolePermissionEntity } from './entities/role-permission.entity.ts';
 import { RbacPermissionsController } from './rbac-permissions.controller.ts';
 import { RbacRoleController } from './rbac.controller.ts';
 import { RbacService } from './rbac.service.ts';

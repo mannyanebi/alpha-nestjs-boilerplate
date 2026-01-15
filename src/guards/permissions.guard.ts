@@ -2,14 +2,16 @@ import type { CanActivate, ExecutionContext } from '@nestjs/common';
 import {
   ForbiddenException,
   Injectable,
+  Logger,
   UnauthorizedException,
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 
-import type { RoleType } from '../constants/roles.constant.ts';
 import type { IPermissionMetadata } from '../decorators/require-permissions.decorator.ts';
 import { PERMISSIONS_KEY } from '../decorators/require-permissions.decorator.ts';
-import { RbacService } from '../rbac.service.ts';
+import type { RoleType } from '../modules/rbac/constants/roles.constant.ts';
+import { RbacService } from '../modules/rbac/rbac.service.ts';
+import { ApiConfigService } from '../shared/services/api-config.service.ts';
 
 interface IRequestWithUser extends Request {
   user?: {
@@ -23,9 +25,11 @@ interface IRequestWithUser extends Request {
 
 @Injectable()
 export class PermissionsGuard implements CanActivate {
+  private readonly logger = new Logger(PermissionsGuard.name);
   constructor(
     private readonly reflector: Reflector,
     private readonly rbacService: RbacService,
+    public configService: ApiConfigService,
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
@@ -36,7 +40,7 @@ export class PermissionsGuard implements CanActivate {
     );
 
     // No permissions required, allow access
-    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+
     if (!IPermissionMetadata) {
       return true;
     }
@@ -57,9 +61,14 @@ export class PermissionsGuard implements CanActivate {
       : await this.rbacService.hasAnyPermission(user.role, permissions);
 
     if (!hasPermission) {
-      throw new ForbiddenException(
-        `Insufficient permissions. Required: ${permissions.join(' or ')}`,
-      );
+      if (this.configService.isDevelopment) {
+        this.logger.warn(
+          `[PermissionsGuard] User with role "${user.role}" lacks required permissions: ${permissions.join(
+            ', ',
+          )}`,
+        );
+      }
+      throw new ForbiddenException('Insufficient permissions');
     }
 
     // Handle ownership enforcement for .own permissions
@@ -109,9 +118,9 @@ export class PermissionsGuard implements CanActivate {
     // For ownership check, we need to verify the resource belongs to the user
     // This requires fetching the resource, which we'll do in a service-specific way
     // For now, we'll add a marker to the request that ownership needs verification
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-explicit-any
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (request as any).requiresOwnershipCheck = true;
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-explicit-any
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (request as any).ownershipUserId = user.id;
   }
 
@@ -125,12 +134,12 @@ export class PermissionsGuard implements CanActivate {
   ): void {
     // Add userId to query parameters for automatic filtering
     if (!request.query) {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-member-access
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (request as any).query = {};
     }
 
     request.query!.userId = user.id;
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-explicit-any
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (request as any).autoScoped = true;
   }
 }

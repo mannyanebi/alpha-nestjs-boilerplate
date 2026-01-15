@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { CommandBus } from '@nestjs/cqrs';
 import { InjectRepository } from '@nestjs/typeorm';
 import { plainToClass } from 'class-transformer';
@@ -8,6 +8,7 @@ import { Repository } from 'typeorm';
 import { Transactional } from 'typeorm-transactional';
 
 import type { PageDto } from '../../common/dto/page.dto.ts';
+import { validateHash } from '../../common/utils.ts';
 // import { FileNotImageException } from '../../exceptions/file-not-image.exception.ts';
 import { UserNotFoundException } from '../../exceptions/user-not-found.exception.ts';
 import { GeneratorProvider } from '../../providers/generator.provider.ts';
@@ -20,8 +21,11 @@ import { MailerService } from '../../shared/services/mailer/mailer.service.ts';
 import { CreateSettingsCommand } from './commands/create-settings.command.ts';
 import { CreateSettingsDto } from './dtos/create-settings.dto.ts';
 import type { CreateUserDto } from './dtos/create-user.dto.ts';
+import type { ResetPasswordDto } from './dtos/reset-password.dto.ts';
+import type { SetPasswordDto } from './dtos/set-password.dto.ts';
 import type { UserDto } from './dtos/user.dto.ts';
 import type { UsersPageOptionsDto } from './dtos/users-page-options.dto.ts';
+import { PasswordResetTokenEntity } from './password-reset-token.entity.ts';
 import { UserEntity } from './user.entity.ts';
 import type { UserSettingsEntity } from './user-settings.entity.ts';
 
@@ -32,6 +36,8 @@ export class UserService {
   constructor(
     @InjectRepository(UserEntity)
     private userRepository: Repository<UserEntity>,
+    @InjectRepository(PasswordResetTokenEntity)
+    private passwordResetTokenRepository: Repository<PasswordResetTokenEntity>,
     // private validatorService: ValidatorService,
     // private awsS3Service: AwsS3Service,
     private commandBus: CommandBus,
@@ -71,6 +77,7 @@ export class UserService {
     const plainPassword = GeneratorProvider.generatePassword();
 
     user.password = plainPassword;
+    user.hasSetPassword = false;
 
     await this.userRepository.save(user);
 
@@ -173,6 +180,137 @@ export class UserService {
     await this.mailerService.sendMail({
       to: user.email!,
       subject: `Welcome to ${appConfig.name}`,
+      html,
+      text,
+    });
+  }
+
+  @Transactional()
+  async forgotPassword(email: string): Promise<void> {
+    const user = await this.userRepository.findOne({ where: { email } });
+
+    // Always return success even if user doesn't exist (security best practice)
+    if (!user) {
+      return;
+    }
+
+    // Generate 4-digit OTP
+    const otpCode = GeneratorProvider.generateVerificationCode();
+
+    // Set expiry to 15 minutes from now
+    const expiresAt = new Date();
+    expiresAt.setMinutes(expiresAt.getMinutes() + 15);
+
+    // Create password reset token
+    const resetToken = this.passwordResetTokenRepository.create({
+      userId: user.id,
+      code: otpCode,
+      expiresAt,
+      isUsed: false,
+    });
+
+    await this.passwordResetTokenRepository.save(resetToken);
+
+    // Send OTP email
+    await this.sendPasswordResetEmail(user, otpCode);
+  }
+
+  @Transactional()
+  async resetPassword(resetPasswordDto: ResetPasswordDto): Promise<void> {
+    const { email, otpCode, newPassword } = resetPasswordDto;
+
+    const user = await this.userRepository.findOne({ where: { email } });
+
+    if (!user) {
+      throw new BadRequestException('Invalid email or OTP code');
+    }
+
+    // Find valid reset token
+    const resetToken = await this.passwordResetTokenRepository.findOne({
+      where: {
+        userId: user.id,
+        code: otpCode,
+        isUsed: false,
+      },
+    });
+
+    if (!resetToken) {
+      throw new BadRequestException('Invalid or expired OTP code');
+    }
+
+    // Check if token is expired
+    if (new Date() > resetToken.expiresAt) {
+      throw new BadRequestException('OTP code has expired');
+    }
+
+    // Update password
+    user.password = newPassword;
+
+    // Mark token as used
+    resetToken.isUsed = true;
+
+    await Promise.all([
+      this.userRepository.save(user),
+      this.passwordResetTokenRepository.save(resetToken),
+    ]);
+  }
+
+  @Transactional()
+  async setPassword(
+    user: UserEntity,
+    setPasswordDto: SetPasswordDto,
+  ): Promise<void> {
+    const { currentPassword, newPassword } = setPasswordDto;
+    const isPasswordValid = await validateHash(currentPassword, user.password);
+
+    // Verify current password matches
+    if (isPasswordValid === false) {
+      throw new BadRequestException('Current password is incorrect');
+    }
+
+    // Update password and mark as set by user
+    user.password = newPassword;
+    user.hasSetPassword = true;
+
+    await this.userRepository.save(user);
+  }
+
+  private async sendPasswordResetEmail(
+    user: UserEntity,
+    otpCode: string,
+  ): Promise<void> {
+    const appConfig = this.configService.appConfig;
+    const mailerConfig = this.configService.mailerConfig;
+    const userName = user.firstName || 'there';
+
+    const email = {
+      body: {
+        name: userName,
+        intro: 'You have requested to reset your password.',
+        action: {
+          instructions: 'Use this verification code to reset your password:',
+          button: {
+            color: '#22c55e',
+            text: otpCode,
+            link: '#',
+          },
+        },
+        outro: [
+          'This code will expire in 15 minutes.',
+          'If you did not request a password reset, please ignore this email or contact support if you have concerns.',
+          mailerConfig.supportEmail
+            ? `Need help? Contact us at ${mailerConfig.supportEmail}.`
+            : 'Need help? Reply to this email.',
+        ],
+      },
+    };
+
+    const html = this.mailGenerator.generate(email);
+    const text = this.mailGenerator.generatePlaintext(email);
+
+    await this.mailerService.sendMail({
+      to: user.email!,
+      subject: `Password Reset Code - ${appConfig.name}`,
       html,
       text,
     });

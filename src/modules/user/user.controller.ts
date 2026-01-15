@@ -20,7 +20,11 @@ import {
 } from '../../decorators/http.decorators.ts';
 import { UseLanguageInterceptor } from '../../interceptors/language-interceptor.service.ts';
 import { TranslationService } from '../../shared/services/translation.service.ts';
-import { RoleType } from '../rbac/constants/roles.constant.ts';
+import {
+  AuditAction,
+  EntityType,
+} from '../audit/constants/audit-actions.constant.ts';
+import { AuditLog } from '../audit/decorators/audit-log.decorator.ts';
 import { CreateUserDto } from './dtos/create-user.dto.ts';
 import { UserDto } from './dtos/user.dto.ts';
 import { UsersPageOptionsDto } from './dtos/users-page-options.dto.ts';
@@ -36,7 +40,7 @@ export class UserController {
   ) {}
 
   @Get('admin')
-  @Auth([RoleType.SUPER_ADMIN])
+  @Auth('users.*')
   @HttpCode(HttpStatus.OK)
   @UseLanguageInterceptor()
   async admin(@AuthUser() user: UserEntity) {
@@ -50,7 +54,7 @@ export class UserController {
   }
 
   @Get()
-  @Auth([RoleType.SENIOR_AGRONOMIST, RoleType.SENIOR_AGRONOMIST])
+  @Auth('users.view')
   @HttpCode(HttpStatus.OK)
   @ApiPageResponse({
     description: 'Get users list',
@@ -64,7 +68,7 @@ export class UserController {
   }
 
   @Get(':id')
-  @Auth([RoleType.SENIOR_AGRONOMIST, RoleType.SUPER_ADMIN])
+  @Auth('users.view')
   @HttpCode(HttpStatus.OK)
   @ApiUUIDParam('id')
   @ApiResponse({
@@ -77,9 +81,15 @@ export class UserController {
   }
 
   @Post('create')
-  @Auth([RoleType.SUPER_ADMIN])
+  @Auth('users.create.staff')
   @HttpCode(HttpStatus.OK)
   @ApiResponse({ type: UserDto, description: 'User successfully created ' })
+  @AuditLog({
+    action: AuditAction.USER_CREATED,
+    entityType: EntityType.USER,
+    captureBody: true,
+    message: 'A new user has been created',
+  })
   async createUser(@Body() createUserDto: CreateUserDto): Promise<UserDto> {
     const user = await this.userService.createUser(createUserDto);
 

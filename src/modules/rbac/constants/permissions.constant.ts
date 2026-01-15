@@ -6,6 +6,7 @@
 export enum Permission {
   // ============== USERS ==============
   USERS_VIEW = 'users.view',
+  USERS_VIEW_OWN = 'users.view.own',
   USERS_CREATE_STAFF = 'users.create.staff',
   USERS_MANAGE_STAFF = 'users.manage.staff',
   USERS_CREATE_ADMIN = 'users.create.admin',
@@ -98,6 +99,7 @@ export const WILDCARD_PERMISSIONS = [
 export const PERMISSION_DESCRIPTIONS: Record<Permission, string> = {
   // Users
   [Permission.USERS_VIEW]: 'View user profiles and directory',
+  [Permission.USERS_VIEW_OWN]: 'View own user profile',
   [Permission.USERS_CREATE_STAFF]: 'Create new Agronomist accounts',
   [Permission.USERS_MANAGE_STAFF]: 'Edit/Deactivate Agronomist accounts',
   [Permission.USERS_CREATE_ADMIN]:

@@ -3,6 +3,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 
 import { SharedModule } from '../../shared/shared.module.ts';
 import { CreateSettingsHandler } from './commands/create-settings.command';
+import { PasswordResetTokenEntity } from './password-reset-token.entity.ts';
 import { UserController } from './user.controller.ts';
 import { UserEntity } from './user.entity.ts';
 import { UserService } from './user.service.ts';
@@ -13,7 +14,11 @@ const handlers = [CreateSettingsHandler];
 @Module({
   imports: [
     SharedModule,
-    TypeOrmModule.forFeature([UserEntity, UserSettingsEntity]),
+    TypeOrmModule.forFeature([
+      UserEntity,
+      UserSettingsEntity,
+      PasswordResetTokenEntity,
+    ]),
   ],
   controllers: [UserController],
   providers: [

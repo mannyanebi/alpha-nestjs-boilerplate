@@ -64,3 +64,29 @@ export function IsUndefinable(options?: ValidationOptions): PropertyDecorator {
 export function IsNullable(options?: ValidationOptions): PropertyDecorator {
   return ValidateIf((_obj, value) => value !== null, options);
 }
+
+export function Match(
+  property: string,
+  validationOptions?: ValidationOptions,
+): PropertyDecorator {
+  return (object, propertyName) => {
+    registerDecorator({
+      name: 'match',
+      target: object.constructor,
+      propertyName: propertyName as string,
+      options: validationOptions,
+      constraints: [property],
+      validator: {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        validate(value: string, args: any) {
+          const [relatedPropertyName] = args.constraints;
+          const relatedValue = args.object[relatedPropertyName];
+          return value === relatedValue;
+        },
+        defaultMessage(): string {
+          return `${propertyName as string} must match ${property}`;
+        },
+      },
+    });
+  };
+}
