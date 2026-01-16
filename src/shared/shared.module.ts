@@ -3,6 +3,7 @@ import { CacheModule } from '@nestjs/cache-manager';
 import type { Provider } from '@nestjs/common';
 import { Global, Module } from '@nestjs/common';
 import { CqrsModule } from '@nestjs/cqrs';
+import { KeyvOptions } from 'keyv';
 
 import { ApiConfigService } from './services/api-config.service.ts';
 import { AwsS3Service } from './services/aws-s3.service.ts';
@@ -31,6 +32,7 @@ const providers: Provider[] = [
       isGlobal: true,
       useFactory: async (configService: ApiConfigService) => {
         const redisConfig = configService.redisConfig;
+        const appConfig = configService.appConfig;
 
         // Build Redis connection URL
         let connectionString: string;
@@ -41,8 +43,13 @@ const providers: Provider[] = [
           connectionString = `redis://${redisConfig.host}:${redisConfig.port}/${redisConfig.cacheDb}`;
         }
 
+        const keyvOptions: KeyvOptions = {
+          namespace: appConfig.name.toLowerCase() + '_cache',
+          ttl: 30 * 60 * 1000, // 30 minutes in milliseconds
+        };
+
         // Create KeyvRedis store (NestJS will wrap it in Keyv internally)
-        const store = new KeyvRedis(connectionString);
+        const store = new KeyvRedis(connectionString, keyvOptions);
 
         return {
           stores: [store],

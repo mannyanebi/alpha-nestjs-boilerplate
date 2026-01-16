@@ -7,12 +7,14 @@ The application uses Redis for caching and BullMQ queue management with support 
 ## Architecture
 
 ### Cache Layer (Keyv + @keyv/redis)
+
 - Uses `@nestjs/cache-manager` with Keyv architecture
 - Backed by `@keyv/redis` store for Redis persistence
 - Provides a unified caching interface with automatic serialization
 - TTL management at 30 minutes by default
 
 ### Queue Layer (BullMQ + ioredis)
+
 - Uses `ioredis` client directly for maximum performance
 - Separate connection from cache to isolate workloads
 - Supports complex job patterns and scheduling
@@ -40,6 +42,7 @@ REDIS_QUEUE_DB=0    # Database for BullMQ queues (can use 1 for separation)
 ### Connection Modes
 
 **Localhost (Development):**
+
 ```bash
 REDIS_URL=
 REDIS_HOST=localhost
@@ -49,6 +52,7 @@ REDIS_QUEUE_DB=0
 ```
 
 **Secured Remote (Production):**
+
 ```bash
 REDIS_URL=rediss://default:password@prosev-redis.com:25061
 # Note: When using REDIS_URL, the database is included in the URL
@@ -62,7 +66,7 @@ The application automatically builds Redis connection strings from your config:
 - **With REDIS_URL**: Uses the provided connection string directly
 - **Without REDIS_URL**: Builds connection string as `redis://host:port/database`
 - **TLS Support**: Automatically enabled for `rediss://` URLs (without certificate verification)
-- **Database Selection**: 
+- **Database Selection**:
   - Cache uses `REDIS_CACHE_DB`
   - BullMQ uses `REDIS_QUEUE_DB`
   - Both can use DB 0 or separate DBs (e.g., 0 and 1)
@@ -89,14 +93,23 @@ CacheModule.registerAsync({
   useFactory: async (configService: ApiConfigService) => {
     const redisConfig = configService.redisConfig;
     
-    // Build connection string
-    const connectionString = redisConfig.url 
-      ? redisConfig.url 
-      : `redis://${redisConfig.host}:${redisConfig.port}/${redisConfig.cacheDb}`;
-    
-    // Create KeyvRedis store
-    const store = new KeyvRedis(connectionString);
-    
+    // Build Redis connection URL
+    let connectionString: string;
+
+    if (redisConfig.url) {
+      connectionString = redisConfig.url;
+    } else {
+      connectionString = `redis://${redisConfig.host}:${redisConfig.port}/${redisConfig.cacheDb}`;
+    }
+
+    const keyvOptions: KeyvOptions = {
+      namespace: appConfig.name.toLowerCase() + '_cache',
+      ttl: 30 * 60 * 1000, // 30 minutes in milliseconds
+    };
+
+    // Create KeyvRedis store (NestJS will wrap it in Keyv internally)
+    const store = new KeyvRedis(connectionString, keyvOptions);
+
     return {
       stores: [store],
       ttl: 30 * 60 * 1000, // 30 minutes in milliseconds
@@ -110,7 +123,7 @@ CacheModule.registerAsync({
 
 ### 1. Caching with @nestjs/cache-manager
 
-The cache is globally available with a 30-minute TTL default. All cache keys are automatically prefixed with `cache:` namespace.
+The cache is globally available with a 30-minute TTL default. All cache keys are automatically prefixed with `appConfig:` namespace, in this case `prosev_cache`.
 
 **Inject and use:**
 
@@ -129,19 +142,23 @@ export class UserService {
 
 **Important: Cache Keys in Redis**
 
-All cache keys are prefixed with `cache:` namespace by Keyv. For example:
-- `cacheManager.set('user:123', data)` → Redis key: `cache:user:123`
-- `cacheManager.set('products', data)` → Redis key: `cache:products`
+All cache keys are prefixed with `prosev_cache:` namespace by Keyv. For example:
+
+- `cacheManager.set('user:123', data)` → Redis key: `prosev_cache:user:123`
+- `cacheManager.set('products', data)` → Redis key: `prosev_cache:products`
 
 You can view all cache keys in Redis:
+
 ```bash
-redis-cli keys "cache:*"
+redis-cli keys "prosev_cache:*"
 ```
 
 **Use CacheTTL decorator:**
 
 ```typescript
 import { CacheTTL, CacheKey } from '@nestjs/cache-manager';
+```
+
 BullMQ uses a **separate ioredis connection** from the cache layer for optimal performance and isolation. The `RedisService` provides connection options that BullMQ can use.
 
 **Create a queue module:**
@@ -195,6 +212,7 @@ const user = await this.cacheManager.get('user:123');
     await this.cacheManager.reset();
   }
 }
+
 ```
 
 **Custom TTL:**
@@ -262,6 +280,7 @@ export class EmailService {
 
   async sendWelcomeEmail(userId: string, email: string) {
     await this.emailQueue.add('we (Advanced)
+```
 
 For advanced use cases that need direct Redis access (like sessions, pub/sub, or rate limiting), use the `RedisService`:
 
@@ -296,7 +315,7 @@ export class SessionService {
 }
 ```
 
-**NTechnical Architecture
+**Technical Architecture**
 
 ### Cache Layer (Keyv + Redis)
 
@@ -310,7 +329,7 @@ export class SessionService {
    Redis Server
 ```
 
-- **Namespace**: `cache:`
+- **Namespace**: `prosev_cache:`
 - **Serialization**: Automatic JSON
 - **TTL**: 30 minutes default (configurable)
 - **Database**: `REDIS_CACHE_DB` (default: 0)
@@ -334,18 +353,21 @@ export class SessionService {
 ### Separate vs Shared Connections
 
 **Cache Connection** (`REDIS_CACHE_DB`):
+
 - Managed by `@keyv/redis` internally
 - Used through `@nestjs/cache-manager`
 - Optimized for get/set operations
 - Default DB: 0
 
 **Queue Connection** (`REDIS_QUEUE_DB`):
+
 - Managed by `RedisService` with ioredis
 - Used by BullMQ for job queues
 - Optimized for list/stream operations
 - Default DB: 0 (can change to 1 for separation)
 
 **Benefits of separation:**
+
 - Prevents cache operations from blocking queue processing
 - Better isolation and debugging
 - Independent scaling and monitoring
@@ -360,11 +382,20 @@ The `RedisService` automatically parses connection strings for BullMQ:
 // Input: rediss://username:password@host:port/0
 // ↓ Parsed to ioredis options ↓
 {
-  hDebugging & Monitoring
+  host: 'host',
+  port: 'port',
+  username: 'username',
+  password: 'password',
+  tls: { rejectUnauthorized: false },
+  db: 0 // or from config
+}
+```
+
+Debugging & Monitoring
 
 ### View Cache Keys in Redis
 
-All cache keys are prefixed with `cache:`:
+All cache keys are prefixed with `prosev_cache:`:
 
 ```bash
 # View all cache keys
@@ -415,10 +446,13 @@ export class CacheMonitorService {
 ### Connection Issues
 
 **Test Redis connection:**
+
 ```bash
 # Basic connectivity
 redis-cli -h localhost -p 6379 ping
-# SPackage Dependencies
+```
+
+# Package Dependencies
 
 ```json
 {
@@ -438,12 +472,17 @@ redis-cli -h localhost -p 6379 ping
 - [@keyv/redis](https://github.com/jaredwray/keyv/tree/main/packages/redis)
 - [BullMQ Documentation](https://docs.bullmq.io/)
 - [ioredis Documentation](https://github.com/redis/ioredis)
-- [Redis Commands Reference](https://redis.io/command
+- [Redis Commands Reference](<https://redis.io/command>
+
 # Check specific database
+
+```bash
 redis-cli -n 0 ping
+
 ```
 
 **Check application logs:**
+
 ```bash
 # Look for these log messages:
 [RedisService] Redis cache client connected
@@ -453,18 +492,21 @@ redis-cli -n 0 ping
 ### Cache Not Working
 
 **1. Verify Redis is receiving cache operations:**
+
 ```bash
 redis-cli monitor
 # Call a cached endpoint, you should see SET/GET commands
 ```
 
 **2. Check cache keys exist:**
+
 ```bash
 redis-cli keys "cache:*"
 # Should show keys with cache: prefix
 ```
 
 **3. Verify cache configuration:**
+
 ```typescript
 // In your service
 const value = await this.cacheManager.get('test-key');
@@ -474,12 +516,14 @@ console.log('Cache value:', value);
 ### Clear Cache Data
 
 **Clear all cache (keeps queue data):**
+
 ```typescript
 // Via cache manager
 await this.cacheManager.reset();
 ```
 
 **Clear specific cache keys:**
+
 ```bash
 # Delete all cache keys
 redis-cli --scan --pattern "cache:*" | xargs redis-cli del
@@ -489,6 +533,7 @@ redis-cli --scan --pattern "cache:user:*" | xargs redis-cli del
 ```
 
 **Clear entire database (dangerous!):**
+
 ```bash
 # Clear current database only
 redis-cli flushdb
@@ -500,16 +545,19 @@ redis-cli flushall
 ### Performance Issues
 
 **1. Check Redis memory:**
+
 ```bash
 redis-cli info memory
 ```
 
 **2. Check slow operations:**
+
 ```bash
 redis-cli slowlog get 10
 ```
 
 **3. Monitor connection count:**
+
 ```bash
 redis-cli client list
 ```
@@ -517,20 +565,24 @@ redis-cli client list
 ### Common Issues
 
 **Issue: "Connection refused"**
+
 - Ensure Redis is running: `redis-server --version`
 - Check Redis is listening: `netstat -an | grep 6379`
 - Verify firewall rules
 
 **Issue: "Authentication failed"**
+
 - Check REDIS_URL contains correct password
 - Verify Redis requirepass configuration
 
 **Issue: "Cache not persisting between restarts"**
+
 - This is normal! Cache is meant to be ephemeral
 - If you need persistence, that's what your database is for
 - Check Redis is using the correct database number
 
 **Issue: "Keys not showing in Redis"**
+
 - Remember keys are prefixed with `cache:`
 - Use: `redis-cli keys "cache:*"` not `redis-cli keys "*"`
 
@@ -539,16 +591,19 @@ redis-cli client list
 ### Separate vs Shared Connections
 
 **Cache Client** (`REDIS_CACHE_DB`):
+
 - Used by @nestjs/cache-manager
 - Stores application cache data
 - Default DB: 0
 
 **Queue Client** (`REDIS_QUEUE_DB`):
+
 - Used by BullMQ for job queues
 - Isolated from cache operations
 - Default DB: 0 (can change to 1 for separation)
 
 **Benefits of separation:**
+
 - Prevents cache operations from blocking queue processing
 - Better isolation and debugging
 - Independent scaling and monitoring
@@ -588,6 +643,7 @@ The RedisService automatically handles connection strings:
    - Use cache keys with namespaces: `user:${id}`, `product:${id}`
 
 4. **Use separate DBs in production:**
+
    ```bash
    REDIS_CACHE_DB=0
    REDIS_QUEUE_DB=1
@@ -601,6 +657,7 @@ The RedisService automatically handles connection strings:
 ## Troubleshooting
 
 **Connection issues:**
+
 ```bash
 # Test Redis connection
 redis-cli -h localhost -p 6379 ping
@@ -611,10 +668,12 @@ redis-cli -h host -p port -a password --tls ping
 ```
 
 **Check logs:**
+
 - RedisService logs connection status on startup
 - Look for "Redis cache client connected" messages
 
 **Clear all Redis data:**
+
 ```typescript
 // Via cache manager
 await this.cacheManager.reset();

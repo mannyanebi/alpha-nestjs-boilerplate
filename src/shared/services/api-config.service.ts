@@ -196,7 +196,7 @@ export class ApiConfigService {
   get appConfig() {
     return {
       port: this.getString('PORT'),
-      name: this.getString('APP_NAME', 'Croptera'),
+      name: this.getString('APP_NAME', 'Prosev'),
       loginUrl: this.getString('APP_LOGIN_URL', 'http://localhost:3000/login'),
     };
   }
