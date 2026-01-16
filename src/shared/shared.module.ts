@@ -1,7 +1,7 @@
 import KeyvRedis from '@keyv/redis';
 import { CacheModule } from '@nestjs/cache-manager';
 import type { Provider } from '@nestjs/common';
-import { Global, Module } from '@nestjs/common';
+import { Global, Logger, Module } from '@nestjs/common';
 import { CqrsModule } from '@nestjs/cqrs';
 import { KeyvOptions } from 'keyv';
 
@@ -31,6 +31,7 @@ const providers: Provider[] = [
     CacheModule.registerAsync({
       isGlobal: true,
       useFactory: async (configService: ApiConfigService) => {
+        const logger = new Logger('CacheModule');
         const redisConfig = configService.redisConfig;
         const appConfig = configService.appConfig;
 
@@ -50,7 +51,7 @@ const providers: Provider[] = [
 
         // Create KeyvRedis store (NestJS will wrap it in Keyv internally)
         const store = new KeyvRedis(connectionString, keyvOptions);
-
+        logger.log('✅ Configured Redis cache store for CacheModule');
         return {
           stores: [store],
           ttl: 30 * 60 * 1000, // 30 minutes in milliseconds
