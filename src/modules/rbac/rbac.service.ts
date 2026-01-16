@@ -1,5 +1,7 @@
-import { ConflictException, Injectable } from '@nestjs/common';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
+import { ConflictException, Inject, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import type { Cache } from 'cache-manager';
 import { In, Repository } from 'typeorm';
 
 import { UserEntity } from '../user/user.entity.ts';
@@ -29,15 +31,8 @@ interface IPermissionCheckOptions {
 
 @Injectable()
 export class RbacService {
-  // In-memory cache for role permissions (5 minutes TTL)
-  private readonly permissionsCache = new Map<
-    string,
-    { permissions: string[]; timestamp: number }
-  >();
-
-  private readonly cacheTtl = 5 * 60 * 1000; // 5 minutes
-
   constructor(
+    @Inject(CACHE_MANAGER) private cacheManager: Cache,
     @InjectRepository(RoleEntity)
     private readonly roleRepository: Repository<RoleEntity>,
     @InjectRepository(PermissionEntity)
@@ -53,11 +48,11 @@ export class RbacService {
    */
   async getRolePermissions(roleName: RoleType | string): Promise<string[]> {
     const cacheKey = `role:${roleName}`;
-    const cached = this.permissionsCache.get(cacheKey);
+    const cached = await this.cacheManager.get<string[]>(cacheKey);
 
     // Check cache validity
-    if (cached && Date.now() - cached.timestamp < this.cacheTtl) {
-      return cached.permissions;
+    if (cached) {
+      return cached;
     }
 
     // Query database
@@ -75,10 +70,7 @@ export class RbacService {
       .map((rp) => rp.permission.slug);
 
     // Cache the result
-    this.permissionsCache.set(cacheKey, {
-      permissions,
-      timestamp: Date.now(),
-    });
+    await this.cacheManager.set<string[]>(cacheKey, permissions);
 
     return permissions;
   }
@@ -171,11 +163,11 @@ export class RbacService {
   /**
    * Clear cache for a specific role or all roles
    */
-  clearCache(roleName?: RoleType | string): void {
+  async clearCache(roleName?: RoleType | string): Promise<void> {
     if (roleName) {
-      this.permissionsCache.delete(`role:${roleName}`);
+      await this.cacheManager.del(`role:${roleName}`);
     } else {
-      this.permissionsCache.clear();
+      await this.cacheManager.clear();
     }
   }
 
@@ -243,7 +235,7 @@ export class RbacService {
     });
 
     const savedPermission = await this.permissionRepository.save(permission);
-    this.clearCache();
+    await this.clearCache();
 
     return savedPermission;
   }
@@ -315,7 +307,7 @@ export class RbacService {
     this.permissionRepository.merge(permission, updates);
 
     const savedPermission = await this.permissionRepository.save(permission);
-    this.clearCache();
+    await this.clearCache();
 
     return savedPermission;
   }
@@ -330,7 +322,7 @@ export class RbacService {
     }
 
     await this.permissionRepository.remove(permission);
-    this.clearCache();
+    await this.clearCache();
   }
 
   async createRole(createRoleDto: CreateRoleDto): Promise<RoleDetailsDto> {
@@ -360,9 +352,11 @@ export class RbacService {
   }
 
   async getRoles(): Promise<RoleEntity[]> {
-    return this.roleRepository.find({
+    const roles = await this.roleRepository.find({
       order: { hierarchy: 'ASC' },
     });
+
+    return roles;
   }
 
   async getRolesSummary(): Promise<RoleSummaryDto[]> {
@@ -460,7 +454,7 @@ export class RbacService {
     this.roleRepository.merge(role, updates);
 
     await this.roleRepository.save(role);
-    this.clearCache(role.name);
+    await this.clearCache(role.name);
 
     return this.getRoleDetails(role.id);
   }
@@ -475,7 +469,7 @@ export class RbacService {
     }
 
     await this.roleRepository.remove(role);
-    this.clearCache(role.name);
+    await this.clearCache(role.name);
   }
 
   async assignPermissions(
@@ -512,7 +506,7 @@ export class RbacService {
       await this.rolePermissionRepository.save(mappings);
     }
 
-    this.clearCache(role.name);
+    await this.clearCache(role.name);
 
     return this.getRoleDetails(role.id);
   }
@@ -538,7 +532,7 @@ export class RbacService {
     }
 
     await this.rolePermissionRepository.remove(rolePermission);
-    this.clearCache(role.name);
+    await this.clearCache(role.name);
 
     return this.getRoleDetails(role.id);
   }
