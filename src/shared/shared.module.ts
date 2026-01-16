@@ -1,8 +1,8 @@
+import KeyvRedis from '@keyv/redis';
 import { CacheModule } from '@nestjs/cache-manager';
 import type { Provider } from '@nestjs/common';
 import { Global, Module } from '@nestjs/common';
 import { CqrsModule } from '@nestjs/cqrs';
-import { redisStore } from 'cache-manager-ioredis-yet';
 
 import { ApiConfigService } from './services/api-config.service.ts';
 import { AwsS3Service } from './services/aws-s3.service.ts';
@@ -29,22 +29,27 @@ const providers: Provider[] = [
     MailerModule,
     CacheModule.registerAsync({
       isGlobal: true,
-      useFactory: async (redisService: RedisService) => {
-        const cacheClient = redisService.getCacheClient();
+      useFactory: async (configService: ApiConfigService) => {
+        const redisConfig = configService.redisConfig;
 
-        // ✅ Make sure redisStore is properly awaited and configured
-        const store = await redisStore({
-          client: cacheClient,
-          ttl: 30 * 60, // 30 minutes in SECONDS (not milliseconds)
-        });
+        // Build Redis connection URL
+        let connectionString: string;
 
-        console.log('🔍 Cache store type:', store.constructor.name);
+        if (redisConfig.url) {
+          connectionString = redisConfig.url;
+        } else {
+          connectionString = `redis://${redisConfig.host}:${redisConfig.port}/${redisConfig.cacheDb}`;
+        }
+
+        // Create KeyvRedis store (NestJS will wrap it in Keyv internally)
+        const store = new KeyvRedis(connectionString);
 
         return {
-          store,
+          stores: [store],
+          ttl: 30 * 60 * 1000, // 30 minutes in milliseconds
         };
       },
-      inject: [RedisService],
+      inject: [ApiConfigService],
     }),
   ],
   exports: [...providers, CqrsModule, MailerModule, CacheModule],

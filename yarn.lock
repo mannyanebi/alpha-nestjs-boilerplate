@@ -2963,6 +2963,19 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@keyv/redis@npm:^5.1.5":
+  version: 5.1.5
+  resolution: "@keyv/redis@npm:5.1.5"
+  dependencies:
+    "@redis/client": "npm:^5.10.0"
+    cluster-key-slot: "npm:^1.1.2"
+    hookified: "npm:^1.13.0"
+  peerDependencies:
+    keyv: ^5.5.5
+  checksum: 10c0/bf5de9a4550fadf535334d90da799238906a084ef23e89ce7ab560576837c31262a5ab7566abd4212e866e2b56e99750140cad58f477b8aeaa49f2508a989d0a
+  languageName: node
+  linkType: hard
+
 "@keyv/serialize@npm:^1.1.1":
   version: 1.1.1
   resolution: "@keyv/serialize@npm:1.1.1"
@@ -4002,6 +4015,15 @@ __metadata:
   dependencies:
     quansync: "npm:^0.2.10"
   checksum: 10c0/15d9914328d296df6626b6b2d5e9f455f618d5c8ffff09270ca3ce42c1bd21e4a91b53d6c1d857fbcae3be8c07b33ab82a83532870f2c5bf74904fe0ac60a3d1
+  languageName: node
+  linkType: hard
+
+"@redis/client@npm:^5.10.0":
+  version: 5.10.0
+  resolution: "@redis/client@npm:5.10.0"
+  dependencies:
+    cluster-key-slot: "npm:1.1.2"
+  checksum: 10c0/f4409d64968d59a803eb40ccc6ab0e0a21aa5dd68837b079e7dadf31648efc62615298b9b71e85f1122596ae08c135f24f20bb0b35313c9066c1c63856be5cc7
   languageName: node
   linkType: hard
 
@@ -8060,7 +8082,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"cluster-key-slot@npm:^1.1.0":
+"cluster-key-slot@npm:1.1.2, cluster-key-slot@npm:^1.1.0, cluster-key-slot@npm:^1.1.2":
   version: 1.1.2
   resolution: "cluster-key-slot@npm:1.1.2"
   checksum: 10c0/d7d39ca28a8786e9e801eeb8c770e3c3236a566625d7299a47bb71113fb2298ce1039596acb82590e598c52dbc9b1f088c8f587803e697cb58e1867a95ff94d3
@@ -8412,6 +8434,7 @@ __metadata:
     "@aws-sdk/client-s3": "npm:^3.826.0"
     "@biomejs/biome": "npm:1.9.4"
     "@eslint/js": "npm:^9.28.0"
+    "@keyv/redis": "npm:^5.1.5"
     "@nestjs/bullmq": "npm:^11.0.4"
     "@nestjs/cache-manager": "npm:^3.1.0"
     "@nestjs/cli": "npm:^11.0.7"
@@ -8471,6 +8494,7 @@ __metadata:
     ioredis: "npm:^5.9.2"
     jest: "npm:^29.7.0"
     jsonwebtoken: "npm:^9.0.2"
+    keyv: "npm:^5.5.5"
     libphonenumber-js: "npm:^1.12.9"
     lint-staged: "npm:^16.1.0"
     lodash: "npm:^4.17.21"
@@ -10840,7 +10864,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"hookified@npm:^1.14.0":
+"hookified@npm:^1.13.0, hookified@npm:^1.14.0":
   version: 1.15.0
   resolution: "hookified@npm:1.15.0"
   checksum: 10c0/bb8e2b34d6e6c1a00fd946ebbb3988fd826ac1c7ae103507d3402ab94defdb09d1fafb37cec6eae48e60ba56217ef89b803b885ccf4156c149e499d05a7741ec

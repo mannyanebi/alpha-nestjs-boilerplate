@@ -95,19 +95,6 @@ export class RedisService implements OnModuleDestroy {
       this.cacheClient.on('error', (error) => {
         this.logger.error('Redis cache client error:', error);
       });
-
-      // ✅ Add this debug log to verify connection
-      this.cacheClient.on('ready', () => {
-        this.logger.log(`Redis cache client ready - DB: ${config.cacheDb}`);
-        // Test direct write to Redis
-        this.cacheClient?.set(
-          'test_direct_redis',
-          'direct_write_test',
-          'EX',
-          60,
-        );
-        this.logger.log('Direct Redis test key written');
-      });
     }
 
     return this.cacheClient;

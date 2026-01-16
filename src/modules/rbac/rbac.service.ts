@@ -1,4 +1,4 @@
-import { CACHE_MANAGER, CacheKey, CacheTTL } from '@nestjs/cache-manager';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { ConflictException, Inject, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import type { Cache } from 'cache-manager';
@@ -351,20 +351,10 @@ export class RbacService {
     return this.getRoleDetails(savedRole.id);
   }
 
-  // @CacheTTL(600000) // 10 minutes
-  // @CacheKey('rbac_service_get_roles')
   async getRoles(): Promise<RoleEntity[]> {
-    // 🔍 Debug: Check what cache store is being used
-    console.log('🔍 Cache manager store:', this.cacheManager.stores);
-
     const roles = await this.roleRepository.find({
       order: { hierarchy: 'ASC' },
     });
-
-    const testKey = 'test_cache_key';
-    await this.cacheManager.set(testKey, { hello: 'world' }, 60);
-    const testValue = await this.cacheManager.get(testKey);
-    console.log('🧪 Test cache value:', testValue);
 
     return roles;
   }
