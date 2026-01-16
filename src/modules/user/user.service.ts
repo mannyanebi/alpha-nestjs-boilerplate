@@ -8,7 +8,6 @@ import { Repository } from 'typeorm';
 import { Transactional } from 'typeorm-transactional';
 
 import type { PageDto } from '../../common/dto/page.dto.ts';
-import { validateHash } from '../../common/utils.ts';
 // import { FileNotImageException } from '../../exceptions/file-not-image.exception.ts';
 import { UserNotFoundException } from '../../exceptions/user-not-found.exception.ts';
 import { GeneratorProvider } from '../../providers/generator.provider.ts';
@@ -215,6 +214,36 @@ export class UserService {
     await this.sendPasswordResetEmail(user, otpCode);
   }
 
+  async validateResetPasswordOtp(
+    email: string,
+    otpCode: string,
+  ): Promise<boolean> {
+    const user = await this.userRepository.findOne({ where: { email } });
+
+    if (!user) {
+      return false;
+    }
+
+    const resetToken = await this.passwordResetTokenRepository.findOne({
+      where: {
+        userId: user.id,
+        code: otpCode,
+        isUsed: false,
+      },
+    });
+
+    if (!resetToken) {
+      return false;
+    }
+
+    // Check if token is expired
+    if (new Date() > resetToken.expiresAt) {
+      return false;
+    }
+
+    return true;
+  }
+
   @Transactional()
   async resetPassword(resetPasswordDto: ResetPasswordDto): Promise<void> {
     const { email, otpCode, newPassword } = resetPasswordDto;
@@ -260,13 +289,7 @@ export class UserService {
     user: UserEntity,
     setPasswordDto: SetPasswordDto,
   ): Promise<void> {
-    const { currentPassword, newPassword } = setPasswordDto;
-    const isPasswordValid = await validateHash(currentPassword, user.password);
-
-    // Verify current password matches
-    if (isPasswordValid === false) {
-      throw new BadRequestException('Current password is incorrect');
-    }
+    const { newPassword } = setPasswordDto;
 
     // Update password and mark as set by user
     user.password = newPassword;

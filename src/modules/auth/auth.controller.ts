@@ -14,6 +14,7 @@ import { ForgotPasswordDto } from '../user/dtos/forgot-password.dto.ts';
 import { ResetPasswordDto } from '../user/dtos/reset-password.dto.ts';
 import { SetPasswordDto } from '../user/dtos/set-password.dto.ts';
 import { UserDto } from '../user/dtos/user.dto.ts';
+import { ValidateResetPasswordCodeDto } from '../user/dtos/validate-reset-password-code.dto.ts';
 import { UserEntity } from '../user/user.entity.ts';
 import { UserService } from '../user/user.service.ts';
 import { AuthService } from './auth.service.ts';
@@ -106,6 +107,27 @@ export class AuthController {
       message:
         'If the email exists, a password reset code has been sent to it.',
     };
+  }
+
+  @Post('validate-reset-password-otp')
+  @Auth(undefined, { public: true })
+  @HttpCode(HttpStatus.OK)
+  @ApiOkResponse({
+    description: 'OTP code is valid',
+  })
+  async validateResetPasswordOtp(
+    @Body() validateResetPasswordCodeDto: ValidateResetPasswordCodeDto,
+  ): Promise<{ message: string }> {
+    const result = await this.userService.validateResetPasswordOtp(
+      validateResetPasswordCodeDto.email,
+      validateResetPasswordCodeDto.otpCode,
+    );
+
+    if (result) {
+      return { message: 'OTP code is valid.' };
+    } else {
+      return { message: 'OTP code is invalid.' };
+    }
   }
 
   @Post('reset-password')

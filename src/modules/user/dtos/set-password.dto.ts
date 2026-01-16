@@ -4,9 +4,6 @@ import { StringField } from '../../../decorators/field.decorators.ts';
 import { Match } from '../../../decorators/validator.decorators.ts';
 
 export class SetPasswordDto {
-  @StringField()
-  currentPassword!: string;
-
   @StringField({ minLength: 10 })
   @MinLength(10, { message: 'Password must be at least 10 characters long' })
   newPassword!: string;
