@@ -174,6 +174,17 @@ export class ApiConfigService {
     };
   }
 
+  get redisConfig() {
+    return {
+      enabled: this.getBoolean('REDIS_CACHE_ENABLED'),
+      url: this.getString('REDIS_URL', ''),
+      host: this.getString('REDIS_HOST', 'localhost'),
+      port: this.getNumber('REDIS_PORT'),
+      cacheDb: this.getNumber('REDIS_CACHE_DB'),
+      queueDb: this.getNumber('REDIS_QUEUE_DB'),
+    };
+  }
+
   get authConfig() {
     return {
       secret: this.getString('JWT_SECRET'),

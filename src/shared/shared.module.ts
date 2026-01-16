@@ -1,11 +1,14 @@
+import { CacheModule } from '@nestjs/cache-manager';
 import type { Provider } from '@nestjs/common';
 import { Global, Module } from '@nestjs/common';
 import { CqrsModule } from '@nestjs/cqrs';
+import { redisStore } from 'cache-manager-ioredis-yet';
 
 import { ApiConfigService } from './services/api-config.service.ts';
 import { AwsS3Service } from './services/aws-s3.service.ts';
 import { GeneratorService } from './services/generator.service.ts';
 import { MailerModule } from './services/mailer/mailer.module.ts';
+import { RedisService } from './services/redis.service.ts';
 import { TranslationService } from './services/translation.service.ts';
 import { ValidatorService } from './services/validator.service.ts';
 
@@ -15,12 +18,35 @@ const providers: Provider[] = [
   AwsS3Service,
   GeneratorService,
   TranslationService,
+  RedisService,
 ];
 
 @Global()
 @Module({
   providers,
-  imports: [CqrsModule, MailerModule],
-  exports: [...providers, CqrsModule, MailerModule],
+  imports: [
+    CqrsModule,
+    MailerModule,
+    CacheModule.registerAsync({
+      isGlobal: true,
+      useFactory: async (redisService: RedisService) => {
+        const cacheClient = redisService.getCacheClient();
+
+        // ✅ Make sure redisStore is properly awaited and configured
+        const store = await redisStore({
+          client: cacheClient,
+          ttl: 30 * 60, // 30 minutes in SECONDS (not milliseconds)
+        });
+
+        console.log('🔍 Cache store type:', store.constructor.name);
+
+        return {
+          store,
+        };
+      },
+      inject: [RedisService],
+    }),
+  ],
+  exports: [...providers, CqrsModule, MailerModule, CacheModule],
 })
 export class SharedModule {}
